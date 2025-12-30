@@ -13,7 +13,50 @@
 [![📱 Watch Demo Video](https://drive.google.com/uc?id=YOUR_FILE_ID&export=download)](https://drive.google.com/drive/folders/1hVt3TiicmlP8bPSU8dFWDrx8x3BtoKHS?usp=sharing)
 
 **Demo Flow:** Login → Airplane ON → 2x Downtime + Photo → Kill App → Restart → Sync → Supervisor Ack
+---
+## 📱 Run on Phone - 4 Methods
 
+### **Method 1: Expo Go QR Scan (Recommended)**
+npx expo start --clear
+
+text
+**📱 On phone:** Download Expo Go → Scan QR code → App loads instantly
+
+### **Method 2: Live EAS Update (No Install)**
+**[Direct Link](https://expo.dev/preview/update?message=MVP+complete&updateRuntimeVersion=1.0.0&createdAt=2025-12-30T19%3A33%3A32.746Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=a158e475-c381-4a1b-b367-725f375c9dcf)**  
+**📱 On phone:** Open link → "Open with Expo Go" → Ready
+
+### **Method 3: USB Debug Cable (Development)**
+**Phone Setup:**
+1. Settings → About Phone → Tap "Build Number" 7x → Developer Options
+2. Enable "USB Debugging" → Connect USB cable
+3. Allow debugging popup → `adb devices` (shows your device)
+
+**Laptop Commands:**
+adb devices # Verify connection
+npx expo start --clear --android # Auto-launches on phone
+
+text
+
+### **Method 4: Production APK**
+eas login
+eas build --platform android --profile preview
+
+text
+**📥 Download APK:** expo.dev dashboard → Builds tab → Install directly
+
+---
+
+## ✅ Offline Demo Flow (Test All Methods)
+Login: john@factory.com → Operator role
+
+✈️ Airplane Mode ON
+
+Log 2x downtime (reason tree + photo) + maintenance
+
+Close app → Reopen → "3 pending" badge appears
+
+Airplane OFF → Supervisor login → Sync → Badge clears
 ---
 
 ## 🚀 Get Started in 90 Seconds **(Copy-Paste Commands)**
