@@ -106,6 +106,16 @@ export default function App() {
     initializeApp();
   }, []);
 
+  // ✅ FIXED: Single auto-sync useEffect
+  useEffect(() => {
+    if (role === 'supervisor' && isOnline && pendingQueue.length > 0 && !syncing) {
+      const syncTimeout = setTimeout(() => {
+        attemptSync();
+      }, 1000);
+      return () => clearTimeout(syncTimeout);
+    }
+  }, [isOnline, pendingQueue.length, role, syncing]);
+
   const saveAllData = async () => {
     try {
       await AsyncStorage.setItem('jwt', jwt);
@@ -179,6 +189,7 @@ export default function App() {
     const newQueue = [...pendingQueue, event];
     setPendingQueue(newQueue);
 
+    // ✅ FIXED: Supervisor event with full states
     const supervisorEvent = {
       id: event.id,
       type: 'DOWNTIME',
@@ -188,6 +199,10 @@ export default function App() {
       time: new Date().toLocaleTimeString(),
       icon: event.icon,
       user: email,
+      status: 'created',
+      acknowledged_by: null,
+      acknowledged_at: null,
+      cleared_at: null,
     };
     const newEvents = [supervisorEvent, ...operatorEvents];
     setOperatorEvents(newEvents);
@@ -230,6 +245,10 @@ export default function App() {
       time: new Date().toLocaleTimeString(),
       icon: '🔧',
       user: email,
+      status: 'created',
+      acknowledged_by: null,
+      acknowledged_at: null,
+      cleared_at: null,
     };
     const newEvents = [supervisorEvent, ...operatorEvents];
     setOperatorEvents(newEvents);
@@ -252,16 +271,38 @@ export default function App() {
     }
   };
 
+  // ✅ FIXED: acknowledgeEvent
   const acknowledgeEvent = (event) => {
     setOperatorEvents(prev => {
-      const updated = prev.filter(e => e.id !== event.id);
+      const updated = prev.map(e => 
+        e.id === event.id 
+          ? { 
+              ...e, 
+              status: 'acknowledged',
+              acknowledged_by: email,
+              acknowledged_at: new Date().toISOString()
+            }
+          : e
+      ).filter(e => e.status !== 'cleared');
+      
       saveAllData();
       return updated;
     });
-    Alert.alert('✅', 'Event acknowledged');
+    Alert.alert('✅', `Event acknowledged by ${email}`);
   };
 
-  // ✅ FIXED: Helper functions INSIDE component
+  // ✅ FIXED: getTopReason
+  const getTopReason = (machineId) => {
+    const machineEvents = pendingQueue.filter(e => e.machine_id === machineId && e.type === 'downtime');
+    if (machineEvents.length === 0) return 'None';
+    const reasonCounts = {};
+    machineEvents.forEach(e => {
+      reasonCounts[e.reason_label] = (reasonCounts[e.reason_label] || 0) + 1;
+    });
+    const topReason = Object.entries(reasonCounts).sort(([,a], [,b]) => b - a)[0];
+    return topReason ? `${topReason[0]} (${topReason[1]}x)` : 'None';
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'RUN': return '#10b981';
@@ -297,6 +338,7 @@ export default function App() {
           <Text style={styles.summaryTime}>Active: 6:45</Text>
           <Text style={styles.summaryTime}>Idle: 1:23</Text>
           <Text style={styles.summaryCount}>Count: 247</Text>
+          <Text style={styles.summaryReasons}>Top: {getTopReason(item.id)}</Text>
         </View>
       </TouchableOpacity>
 
@@ -324,17 +366,26 @@ export default function App() {
     </View>
   );
 
+  // ✅ FIXED: renderOperatorEvent
   const renderOperatorEvent = ({ item }) => (
-    <View style={styles.eventCard}>
+    <View style={[
+      styles.eventCard, 
+      item.status === 'acknowledged' && styles.eventAcknowledged
+    ]}>
       <Text style={styles.eventIcon}>{item.icon}</Text>
       <View style={styles.eventContent}>
         <Text style={styles.eventType}>{item.type}</Text>
         <Text style={styles.eventDesc}>{item.reason || item.task}</Text>
-        <Text style={styles.eventTime}>{item.machine} • {item.time} by {item.user}</Text>
+        <Text style={styles.eventTime}>
+          {item.machine} • {item.time} by {item.user}
+          {item.status === 'acknowledged' && ` • ACK: ${item.acknowledged_by}`}
+        </Text>
       </View>
-      <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
-        <Ionicons name="checkmark-outline" size={16} color="white" />
-      </TouchableOpacity>
+      {item.status === 'created' && (
+        <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
+          <Ionicons name="checkmark-outline" size={16} color="white" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -531,8 +582,8 @@ export default function App() {
 
       <TouchableOpacity 
         style={styles.logoutBtn} 
-        onPress={() => {
-          AsyncStorage.multiRemove(['jwt', 'role', 'pendingQueue', 'machines', 'operatorEvents']);
+        onPress={async () => {
+          await AsyncStorage.multiRemove(['jwt', 'role', 'pendingQueue', 'machines', 'operatorEvents']);
           setScreen('login');
         }}
       >
@@ -543,7 +594,7 @@ export default function App() {
   );
 }
 
-    const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0f172a' },
   gradientHeader: {
     backgroundColor: '#1e3a8a', alignItems: 'center', paddingTop: 60, paddingBottom: 40,
@@ -600,6 +651,10 @@ export default function App() {
     backgroundColor: '#ef4444', width: 24, height: 24, borderRadius: 12,
     alignItems: 'center', justifyContent: 'center', marginRight: 12,
   },
+  eventAcknowledged: {opacity: 0.7,backgroundColor: '#ecfdf5'
+},
+
+
   pendingText: { color: 'white', fontWeight: '800', fontSize: 12 },
   onlineStatus: { fontSize: 12, fontWeight: '700', marginRight: 12, textTransform: 'uppercase' },
   syncBtnHeader: { 
@@ -607,13 +662,19 @@ export default function App() {
     shadowColor: '#10b981', shadowOffset: { width: 0, height: 2 }, 
     shadowOpacity: 0.3, shadowRadius: 6, elevation: 6,
   },
+  summaryReasons: { 
+  fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2 
+},
   syncBtnDisabled: { backgroundColor: '#9ca3af' },
   syncing: { backgroundColor: '#f59e0b' },
   sectionTitle: {
     fontSize: 20, fontWeight: '900', color: 'white', textAlign: 'center',
     margin: 20, marginBottom: 12, letterSpacing: 0.5,
   },
-  
+  summaryReasons: {
+fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2
+},
+
   factoryEmoji: { fontSize: 64, lineHeight: 64 },
   appTitle: { fontSize: 32, fontWeight: '900', color: 'white', letterSpacing: 1.5 },
   appSubtitle: { fontSize: 16, color: '#bfdbfe', marginTop: 6, fontWeight: '500' },
