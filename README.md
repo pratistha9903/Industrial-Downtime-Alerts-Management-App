@@ -4,7 +4,7 @@
 [![Expo Go](https://img.shields.io/badge/Expo%20Go-Scan%20QR-blue)](exp://expo-development-client/?url=https://u.expo.dev/ce79cd3d-031f-4651-9dca-e3559e6dfd3c/group/a158e475-c381-4a1b-b367-725f375c9dcf)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-181717)](https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App)
 
-**Production-grade offline-first field application** for shop floor operators and supervisors. **✅ 100% MVP requirements fulfilled** per Cross-Platform Mobile Challenge specification.
+**Production-grade offline-first field application** for machine operators and supervisors. **✅ 100% MVP requirements fulfilled** per Cross-Platform Mobile Challenge specification.
 
 ---
 
