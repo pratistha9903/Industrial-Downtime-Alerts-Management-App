@@ -19,7 +19,16 @@
 | **Build Status** | ✅ Live | EAS Update deployed |
 
 ---
+## 🎥 90-Second Demo Video
 
+
+
+
+
+
+
+
+---
 ## 🚀 Get Started in 90 Seconds
 
 ### 📋 Prerequisites
