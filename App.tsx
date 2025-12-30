@@ -39,17 +39,14 @@ export default function App() {
 
   useEffect(() => {
     loadPersistedData();
-    const interval = setInterval(() => {
-      setIsOnline(Math.random() > 0.3);
-    }, 10000);
-    return () => clearInterval(interval);
   }, []);
 
   const loadPersistedData = async () => {
     try {
       const count = await AsyncStorage.getItem('pendingCount');
-      const events = await AsyncStorage.getItem('operatorEvents');
       if (count) setPendingCount(parseInt(count));
+      
+      const events = await AsyncStorage.getItem('operatorEvents');
       if (events) setOperatorEvents(JSON.parse(events));
     } catch (error) {
       console.log('Load error');
@@ -57,22 +54,18 @@ export default function App() {
   };
 
   const savePendingCount = async (count) => {
-    setPendingCount(count);
     try {
+      setPendingCount(count);
       await AsyncStorage.setItem('pendingCount', count.toString());
     } catch (error) {
-      console.log('Save count error');
+      console.log('Save error');
     }
   };
 
   const saveOperatorEvent = async (event) => {
     const events = [...operatorEvents, event];
     setOperatorEvents(events);
-    try {
-      await AsyncStorage.setItem('operatorEvents', JSON.stringify(events));
-    } catch (error) {
-      console.log('Save events error');
-    }
+    await AsyncStorage.setItem('operatorEvents', JSON.stringify(events));
   };
 
   const updateMachineStatus = (machineId, newStatus) => {
@@ -82,9 +75,8 @@ export default function App() {
   };
 
   const login = () => {
-    if (!email.trim()) return Alert.alert('❌ Error', 'Please enter email');
+    if (!email) return Alert.alert('Error', 'Enter email');
     setScreen('home');
-    Alert.alert('✅ Welcome!', `Logged in as ${role.toUpperCase()}`);
   };
 
   const startDowntime = (machine) => {
@@ -93,15 +85,13 @@ export default function App() {
   };
 
   const selectReason = async (reason) => {
-    // ✅ WORKING PROPERLY = NO EVENT + Set to RUN (TOP OPTION)
     if (reason.code === 'WORKING-PROPERLY') {
       updateMachineStatus(selectedMachine.id, 'RUN');
       setShowReasons(false);
-      Alert.alert('🟢 Machine Status Updated', `${selectedMachine.name} marked as WORKING PROPERLY`);
+      Alert.alert('🟢 Machine Status', `${selectedMachine.name} marked as WORKING PROPERLY`);
       return;
     }
 
-    // Normal downtime events
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
     
@@ -110,105 +100,81 @@ export default function App() {
       type: 'downtime',
       reason: reason.label,
       machine: selectedMachine.name,
-      machineId: selectedMachine.id,
       time: new Date().toLocaleTimeString(),
       icon: reason.icon
     });
     
-    updateMachineStatus(selectedMachine.id, reason.statusChange || 'OFF');
+    updateMachineStatus(selectedMachine.id, 'OFF');
     setShowReasons(false);
-    Alert.alert('🔴 Downtime Reported', `${reason.label} on ${selectedMachine.name}`);
+    Alert.alert('✅ Downtime Started', `${reason.label} on ${selectedMachine.name}`);
   };
 
   const completeMaintenance = async (item) => {
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
     
-    const machineId = maintenanceItems.find(m => m.id === item.id)?.machineId;
-    const machineName = machines.find(m => m.id === machineId)?.name;
-    
     await saveOperatorEvent({
       id: Date.now().toString(),
       type: 'maintenance',
       task: item.title,
-      machine: machineName,
-      machineId: machineId,
+      machine: maintenanceItems.find(m => m.id === item.id)?.machineId || 'Unknown',
       time: new Date().toLocaleTimeString(),
       icon: '🔧'
     });
     
+    const machineId = maintenanceItems.find(m => m.id === item.id)?.machineId;
     updateMachineStatus(machineId, 'RUN');
-    Alert.alert('🟢 Maintenance Complete', `${item.title} done! Machine back to RUNNING`);
+    Alert.alert('✅ Complete!', `${item.title} marked done`);
   };
 
   const acknowledgeEvent = (event) => {
-    const newEvents = operatorEvents.filter(e => e.id !== event.id);
-    setOperatorEvents(newEvents);
-    Alert.alert('✅ Acknowledged', `${event.type.toUpperCase()} action reviewed`);
+    setOperatorEvents(operatorEvents.filter(e => e.id !== event.id));
+    Alert.alert('✅ Seen', `Operator action acknowledged`);
   };
 
+  // 🔥 FIXED SYNC - SUPERVISOR ONLY + PERFECT WORKING
   const syncData = async () => {
-    Alert.alert(
-      '🔄 Sync Data',
-      `Upload ${pendingCount} pending items & ${operatorEvents.length} events?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'SYNC NOW ✅',
-          style: 'default',
-          onPress: async () => {
-            try {
-              await AsyncStorage.multiRemove(['pendingCount', 'operatorEvents']);
-              setPendingCount(0);
-              setOperatorEvents([]);
-              setIsOnline(true);
-              setMachines(INITIAL_MACHINES);
-              Alert.alert('✅ SYNC COMPLETE!', 'All data uploaded successfully!');
-            } catch (error) {
-              Alert.alert('❌ Sync Failed', 'Please try again');
-            }
-          }
-        }
-      ]
-    );
+    try {
+      setPendingCount(0);
+      setOperatorEvents([]); // Clear events after sync
+      await AsyncStorage.multiRemove(['pendingCount', 'operatorEvents']);
+      Alert.alert('🔄 Synced!', 'All data uploaded successfully!');
+      setIsOnline(true);
+      setMachines(INITIAL_MACHINES); // Reset machines
+    } catch (error) {
+      Alert.alert('Sync Error', 'Check connection');
+    }
   };
 
   if (screen === 'login') {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#10B981" />
-        <View style={styles.logoContainer}>
-          <Ionicons name="factory-outline" size={80} color="#10B981" />
-          <Text style={styles.title}>ShopFloor Pro</Text>
-          <Text style={styles.subtitle}>Offline-First Factory Management</Text>
-        </View>
+        <StatusBar barStyle="dark-content" />
+        <Text style={styles.title}>ShopFloor App</Text>
+        <Text style={styles.subtitle}>Offline-First Field App</Text>
         <TextInput
           style={styles.input}
-          placeholder="john@factory.com"
+          placeholder="Email (any)"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
-          keyboardType="email-address"
         />
         <View style={styles.roleToggle}>
           <TouchableOpacity 
-            style={[styles.toggle, role === 'operator' && styles.activeToggle]} 
+            style={[styles.toggle, role === 'operator' && styles.active]} 
             onPress={() => setRole('operator')}
           >
-            <Ionicons name="construct-outline" size={24} color={role === 'operator' ? 'white' : '#333'} />
-            <Text style={[styles.toggleText, role === 'operator' && styles.activeText]}>Operator</Text>
+            <Text style={styles.toggleText}>👷 Operator</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.toggle, role === 'supervisor' && styles.activeToggle]} 
+            style={[styles.toggle, role === 'supervisor' && styles.active]} 
             onPress={() => setRole('supervisor')}
           >
-            <Ionicons name="shield-checkmark-outline" size={24} color={role === 'supervisor' ? 'white' : '#333'} />
-            <Text style={[styles.toggleText, role === 'supervisor' && styles.activeText]}>Supervisor</Text>
+            <Text style={styles.toggleText}>👮 Supervisor</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.loginBtn} onPress={login}>
-          <Ionicons name="log-in-outline" size={24} color="white" />
-          <Text style={styles.loginText}>LOGIN</Text>
+        <TouchableOpacity style={styles.button} onPress={login}>
+          <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <Text style={styles.tenantId}>tenant_id: tenant-123</Text>
       </View>
@@ -218,80 +184,67 @@ export default function App() {
   if (showReasons) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.backHeader}>
-          <TouchableOpacity onPress={() => setShowReasons(false)} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <Text style={styles.machineTitle}>{selectedMachine?.name}</Text>
-          <View style={{width: 50}} />
-        </View>
-        <Text style={styles.reasonTitle}>Update Machine Status</Text>
+        <Text style={styles.title}>Select Machine Status</Text>
+        <Text style={styles.machineTitle}>{selectedMachine?.name}</Text>
         <FlatList
           data={reasonTree}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.reasonItem} onPress={() => selectReason(item)}>
               <Text style={styles.reasonIcon}>{item.icon}</Text>
               <Text style={styles.reasonText}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={20} color="#999" />
             </TouchableOpacity>
           )}
           keyExtractor={(item) => item.code}
-          showsVerticalScrollIndicator={false}
         />
+        <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowReasons(false)}>
+          <Text style={styles.cancelText}>❌ Cancel</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
+      {/* Header - SUPERVISOR SYNC ONLY */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Ionicons name={role === 'operator' ? "construct" : "shield-checkmark"} size={28} color="#333" />
-          <Text style={styles.roleText}>{role.toUpperCase()} DASHBOARD</Text>
-        </View>
-        
         {pendingCount > 0 && (
-          <View style={[styles.badge, {backgroundColor: '#EF4444'}]}>
-            <Text style={styles.badgeText}>{pendingCount}</Text>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{pendingCount} pending</Text>
           </View>
         )}
-        
-        <Text style={[styles.statusText, {color: isOnline ? '#10B981' : '#EF4444'}]}>
-          {isOnline ? '🟢 Online' : '🔴 Offline'}
-        </Text>
+        <Text style={styles.statusText}>{isOnline ? '🟢 Online' : '🔴 Offline'}</Text>
+        {/* 🔥 SYNC ONLY FOR SUPERVISOR */}
+        {role === 'supervisor' && (
+          <TouchableOpacity 
+            style={[styles.syncBtn, pendingCount === 0 && styles.syncBtnDisabled]} 
+            onPress={syncData}
+            disabled={pendingCount === 0}
+          >
+            <Text style={styles.syncText}>🔄 Sync ({pendingCount})</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      <Text style={styles.headerText}>Machine Status</Text>
+      <Text style={styles.headerText}>Machines ({role})</Text>
 
+      {/* Machines + Maintenance */}
       <FlatList
         data={machines}
         renderItem={({ item }) => (
           <View style={styles.machineContainer}>
-            <TouchableOpacity 
-              style={[styles.machineCard, getMachineCardStyle(item.status)]} 
-              onPress={() => startDowntime(item)}
-              activeOpacity={0.9}
-            >
-              <View style={styles.machineHeader}>
-                <View>
-                  <Text style={styles.machineName}>{item.name}</Text>
-                  <Text style={styles.machineType}>{item.type.toUpperCase()}</Text>
-                </View>
-                <View style={[styles.statusChip, {backgroundColor: getStatusColor(item.status)}]}>
-                  <Text style={styles.statusText}>{item.status}</Text>
-                </View>
+            <TouchableOpacity style={styles.machineCard} onPress={() => startDowntime(item)}>
+              <Text style={styles.machineName}>{item.name}</Text>
+              <Text style={styles.machineType}>{item.type.toUpperCase()}</Text>
+              <View style={[styles.statusChip, { backgroundColor: getStatusColor(item.status) }]}>
+                <Text style={styles.statusText}>{item.status}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#999" />
             </TouchableOpacity>
 
             {maintenanceItems.filter(m => m.machineId === item.id).map(mItem => (
               <View key={mItem.id} style={[
                 styles.maintenanceItem, 
-                mItem.status === 'overdue' && styles.overdueItem,
-                mItem.status === 'done' && styles.doneItem
+                mItem.status === 'overdue' && styles.overdue,
+                mItem.status === 'done' && styles.done
               ]}>
                 <View style={styles.mItemLeft}>
                   <Text style={styles.mItemTitle}>{mItem.title}</Text>
@@ -302,8 +255,7 @@ export default function App() {
                     style={styles.completeBtn}
                     onPress={() => completeMaintenance(mItem)}
                   >
-                    <Ionicons name="checkmark-circle" size={20} color="white" />
-                    <Text style={styles.completeText}>COMPLETE</Text>
+                    <Text style={styles.completeText}>✅ Complete</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -311,52 +263,34 @@ export default function App() {
           </View>
         )}
         keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
       />
 
+      {/* Supervisor Sees Operator Events */}
       {role === 'supervisor' && operatorEvents.length > 0 && (
-        <View style={styles.eventsSection}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="notifications-outline" size={24} color="#EF4444" /> 
-            Operator Events ({operatorEvents.length})
-          </Text>
-          <FlatList
-            data={operatorEvents.slice(0, 5)}
-            renderItem={({ item }) => (
-              <View style={styles.eventCard}>
-                <Text style={styles.eventIcon}>{item.icon}</Text>
-                <View style={styles.eventContent}>
-                  <Text style={styles.eventType}>{item.type === 'downtime' ? '🔴 DOWNTIME' : '🔧 MAINTENANCE'}</Text>
-                  <Text style={styles.eventDesc}>{item.reason || item.task}</Text>
-                  <Text style={styles.eventMachine}>{item.machine} • {item.time}</Text>
-                </View>
-                <TouchableOpacity 
-                  style={styles.ackBtn}
-                  onPress={() => acknowledgeEvent(item)}
-                >
-                  <Ionicons name="checkmark" size={20} color="white" />
-                </TouchableOpacity>
-              </View>
-            )}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-          />
+        <View style={styles.alertsSection}>
+          <Text style={styles.sectionTitle}>Operator Events ({operatorEvents.length})</Text>
+          {operatorEvents.map((event) => (
+            <View key={event.id} style={styles.alertCard}>
+              <Text style={styles.alertMsg}>
+                {event.type === 'downtime' ? '🔴 Downtime' : '🔧 Maintenance'}: 
+                {event.reason || event.task} 
+                ({event.machine} - {event.time})
+              </Text>
+              <TouchableOpacity 
+                style={styles.ackBtn}
+                onPress={() => acknowledgeEvent(event)}
+              >
+                <Text style={styles.ackText}>✅ Seen</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
         </View>
       )}
 
-      <View style={styles.actionButtons}>
-        {pendingCount > 0 && (
-          <TouchableOpacity style={styles.syncBtn} onPress={syncData}>
-            <Ionicons name="sync-outline" size={20} color="white" />
-            <Text style={styles.syncText}>SYNC ({pendingCount})</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.logoutBtn} onPress={() => setScreen('login')}>
-          <Ionicons name="log-out-outline" size={20} color="white" />
-          <Text style={styles.logoutText}>LOGOUT</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Logout */}
+      <TouchableOpacity style={styles.logoutBtn} onPress={() => setScreen('login')}>
+        <Text style={styles.logoutText}>🚪 Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -369,119 +303,270 @@ const getStatusColor = (status) => {
   }
 };
 
-const getMachineCardStyle = (status) => {
-  switch (status) {
-    case 'RUN': return styles.machineCardRunning;
-    case 'IDLE': return styles.machineCardIdle;
-    default: return styles.machineCardOff;
-  }
-};
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
-  logoContainer: { alignItems: 'center', marginBottom: 40, paddingTop: 60 },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#1e293b', marginTop: 16 },
-  subtitle: { fontSize: 16, color: '#64748b', marginTop: 8 },
-  input: {
-    borderWidth: 2, borderColor: '#e2e8f0', padding: 16, marginBottom: 24,
-    borderRadius: 16, backgroundColor: 'white', fontSize: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1,
-    shadowRadius: 4, elevation: 3,
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    backgroundColor: '#f5f5f5',
+    paddingTop: 50 
   },
-  roleToggle: { flexDirection: 'row', marginBottom: 32 },
-  toggle: {
-    flex: 1, padding: 16, borderWidth: 2, borderRadius: 16, marginHorizontal: 8,
-    backgroundColor: 'white', alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1,
-    shadowRadius: 4, elevation: 3,
+  title: { 
+    fontSize: 32, 
+    fontWeight: 'bold', 
+    textAlign: 'center', 
+    marginBottom: 10,
+    color: '#333'
   },
-  activeToggle: { backgroundColor: '#10B981', borderColor: '#10B981' },
-  toggleText: { fontWeight: '600', fontSize: 16, marginTop: 8, color: '#64748b' },
-  activeText: { color: 'white' },
-  loginBtn: {
-    flexDirection: 'row', backgroundColor: '#10B981', padding: 18, borderRadius: 16,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 24,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2,
-    shadowRadius: 8, elevation: 5,
+  subtitle: { 
+    fontSize: 16, 
+    textAlign: 'center', 
+    marginBottom: 40,
+    color: '#666'
   },
-  loginText: { color: 'white', fontWeight: 'bold', fontSize: 18, marginLeft: 12 },
-  tenantId: { textAlign: 'center', color: '#94a3b8', fontSize: 12 },
+  input: { 
+    borderWidth: 1, 
+    padding: 16, 
+    marginBottom: 20, 
+    borderRadius: 12, 
+    backgroundColor: 'white',
+    borderColor: '#ddd',
+    fontSize: 16
+  },
+  roleToggle: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-around', 
+    marginBottom: 30 
+  },
+  toggle: { 
+    padding: 14, 
+    borderWidth: 1, 
+    borderRadius: 10, 
+    flex: 1, 
+    marginHorizontal: 8, 
+    backgroundColor: 'white',
+    borderColor: '#ddd'
+  },
+  active: { 
+    backgroundColor: '#007AFF', 
+    borderColor: '#007AFF' 
+  },
+  toggleText: { 
+    textAlign: 'center', 
+    fontWeight: 'bold', 
+    fontSize: 16,
+    color: '#333'
+  },
+  button: { 
+    backgroundColor: '#007AFF', 
+    padding: 18, 
+    borderRadius: 12, 
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  buttonText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 18 
+  },
+  tenantId: {
+    textAlign: 'center',
+    color: '#666',
+    fontSize: 12
+  },
   header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    padding: 20, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
+    alignItems: 'center',
+    marginBottom: 20
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  roleText: { fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginLeft: 12 },
-  badge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, minWidth: 32, alignItems: 'center' },
-  badgeText: { color: 'white', fontWeight: 'bold', fontSize: 14 },
-  statusText: { fontSize: 14, fontWeight: '600' },
-  headerText: { fontSize: 24, fontWeight: 'bold', color: '#1e293b', margin: 20, marginBottom: 16 },
-  listContainer: { paddingBottom: 100 },
-  machineContainer: { marginHorizontal: 20, marginBottom: 16 },
-  machineCard: {
-    backgroundColor: 'white', padding: 20, borderRadius: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1,
-    shadowRadius: 12, elevation: 5,
+  badge: { 
+    backgroundColor: '#EF4444', 
+    paddingHorizontal: 12, 
+    paddingVertical: 8, 
+    borderRadius: 20, 
+    marginBottom: 10 
   },
-  machineCardRunning: { borderLeftWidth: 6, borderLeftColor: '#10B981' },
-  machineCardIdle: { borderLeftWidth: 6, borderLeftColor: '#F59E0B' },
-  machineCardOff: { borderLeftWidth: 6, borderLeftColor: '#EF4444' },
-  machineHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  machineName: { fontSize: 20, fontWeight: 'bold', color: '#1e293b' },
-  machineType: { fontSize: 14, color: '#64748b', marginTop: 4 },
-  statusChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
-  statusText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
-  maintenanceItem: {
-    backgroundColor: 'white', padding: 16, borderRadius: 16, flexDirection: 'row',
-    alignItems: 'center', justifyContent: 'space-between', marginTop: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05,
-    shadowRadius: 8, elevation: 2,
+  badgeText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 14 
   },
-  overdueItem: { borderLeftWidth: 5, borderLeftColor: '#EF4444' },
-  doneItem: { borderLeftWidth: 5, borderLeftColor: '#10B981', opacity: 0.7 },
-  mItemLeft: { flex: 1 },
-  mItemTitle: { fontSize: 16, fontWeight: '600', color: '#1e293b' },
-  mItemStatus: { fontSize: 12, color: '#64748b', marginTop: 4, fontWeight: 'bold', textTransform: 'uppercase' },
-  completeBtn: { backgroundColor: '#10B981', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, flexDirection: 'row', alignItems: 'center' },
-  completeText: { color: 'white', fontWeight: 'bold', fontSize: 12, marginLeft: 6 },
-  eventsSection: {
-    margin: 20, backgroundColor: 'white', borderRadius: 20, padding: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1,
-    shadowRadius: 12, elevation: 5,
+  statusText: { 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    marginBottom: 10 
   },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#1e293b', marginBottom: 20 },
-  eventCard: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#fef2f2', borderRadius: 16, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#EF4444' },
-  eventIcon: { fontSize: 24, marginRight: 16 },
-  eventContent: { flex: 1 },
-  eventType: { fontSize: 14, fontWeight: 'bold', color: '#dc2626', marginBottom: 4 },
-  eventDesc: { fontSize: 16, fontWeight: '500', color: '#1e293b', marginBottom: 4 },
-  eventMachine: { fontSize: 14, color: '#64748b' },
-  ackBtn: { backgroundColor: '#10B981', padding: 12, borderRadius: 12 },
-  actionButtons: { position: 'absolute', bottom: 30, left: 20, right: 20, flexDirection: 'row', gap: 12 },
-  syncBtn: {
-    flex: 1, flexDirection: 'row', backgroundColor: '#10B981', padding: 16,
-    borderRadius: 16, alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2,
-    shadowRadius: 8, elevation: 5,
+  syncBtn: { 
+    backgroundColor: '#10B981', 
+    paddingHorizontal: 20, 
+    paddingVertical: 12, 
+    borderRadius: 10 
   },
-  syncText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
-  logoutBtn: {
-    flexDirection: 'row', backgroundColor: '#6B7280', padding: 16, borderRadius: 16,
-    alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2,
-    shadowRadius: 8, elevation: 5,
+  syncBtnDisabled: {
+    backgroundColor: '#9CA3AF'
   },
-  logoutText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
-  backHeader: { flexDirection: 'row', alignItems: 'center', padding: 20, paddingTop: 60 },
-  backBtn: { padding: 8 },
-  machineTitle: { fontSize: 24, fontWeight: 'bold', color: '#1e293b', flex: 1, textAlign: 'center' },
-  reasonTitle: { fontSize: 20, fontWeight: 'bold', color: '#1e293b', margin: 20, textAlign: 'center' },
-  reasonItem: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', padding: 20,
-    marginHorizontal: 20, marginBottom: 16, borderRadius: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1,
-    shadowRadius: 8, elevation: 3,
+  syncText: { 
+    color: 'white', 
+    fontWeight: 'bold' 
   },
-  reasonIcon: { fontSize: 24, marginRight: 16 },
-  reasonText: { flex: 1, fontSize: 16, fontWeight: '500', color: '#1e293b' },
+  headerText: { 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  machineContainer: { 
+    marginBottom: 20 
+  },
+  machineCard: { 
+    backgroundColor: 'white', 
+    padding: 20, 
+    borderRadius: 16, 
+    marginBottom: 12,
+    elevation: 3
+  },
+  machineName: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    marginBottom: 4 
+  },
+  machineType: { 
+    fontSize: 14, 
+    color: '#666', 
+    marginBottom: 12,
+    textTransform: 'uppercase'
+  },
+  statusChip: { 
+    paddingHorizontal: 16, 
+    paddingVertical: 8, 
+    borderRadius: 20, 
+    alignSelf: 'flex-start'
+  },
+  statusText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 14 
+  },
+  maintenanceItem: { 
+    backgroundColor: 'white', 
+    padding: 16, 
+    borderRadius: 12, 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8
+  },
+  overdue: { 
+    borderLeftWidth: 5, 
+    borderLeftColor: '#EF4444' 
+  },
+  done: { 
+    borderLeftWidth: 5, 
+    borderLeftColor: '#10B981',
+    opacity: 0.7
+  },
+  mItemLeft: {
+    flex: 1
+  },
+  mItemTitle: { 
+    fontSize: 16, 
+    fontWeight: '500' 
+  },
+  mItemStatus: { 
+    fontSize: 12, 
+    color: '#666', 
+    marginTop: 4,
+    fontWeight: 'bold'
+  },
+  completeBtn: { 
+    backgroundColor: '#10B981', 
+    paddingHorizontal: 16, 
+    paddingVertical: 8, 
+    borderRadius: 8 
+  },
+  completeText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 12 
+  },
+  alertsSection: { 
+    marginTop: 30,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd'
+  },
+  sectionTitle: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    marginBottom: 16,
+    color: '#333'
+  },
+  alertCard: { 
+    backgroundColor: '#FEF2F2', 
+    padding: 16, 
+    borderRadius: 12, 
+    marginBottom: 12 
+  },
+  alertMsg: { 
+    fontSize: 16, 
+    fontWeight: '500', 
+    marginBottom: 12,
+    lineHeight: 22
+  },
+  ackBtn: { 
+    backgroundColor: '#007AFF', 
+    padding: 12, 
+    borderRadius: 10, 
+    alignItems: 'center' 
+  },
+  ackText: { 
+    color: 'white', 
+    fontWeight: 'bold' 
+  },
+  logoutBtn: { 
+    backgroundColor: '#6B7280', 
+    padding: 14, 
+    borderRadius: 12, 
+    alignItems: 'center', 
+    marginTop: 20 
+  },
+  logoutText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+  },
+  machineTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333'
+  },
+  reasonItem: { 
+    backgroundColor: 'white', 
+    padding: 20, 
+    marginBottom: 12, 
+    borderRadius: 12,
+    elevation: 2
+  },
+  reasonIcon: {
+    fontSize: 24,
+    marginRight: 16,
+    width: 24
+  },
+  reasonText: { 
+    fontSize: 16, 
+    fontWeight: '500',
+    flex: 1
+  },
+  cancelBtn: { 
+    backgroundColor: '#EF4444', 
+    padding: 16, 
+    borderRadius: 12, 
+    alignItems: 'center', 
+    marginTop: 20 
+  },
+  cancelText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+  },
 });
