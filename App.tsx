@@ -12,11 +12,11 @@ const INITIAL_MACHINES = [
 ];
 
 const reasonTree = [
-  { code: 'WORKING-PROPERLY', label: 'Working Properly', icon: '✅ ', statusChange: 'RUN' },
-  { code: 'NO-ORDER', label: 'No Order', icon: '📋', statusChange: 'OFF' },
-  { code: 'POWER', label: ' Power Failure', icon: '⚡', statusChange: 'OFF' },
-  { code: 'MAINTENANCE', label: ' Maintenance', icon: '🔧', statusChange: 'OFF' },
-  { code: 'CHANGEOVER', label: ' Changeover', icon: '🔄', statusChange: 'OFF' },
+  { code: 'WORKING-PROPERLY', label: '✅ Working Properly', icon: '🟢', statusChange: 'RUN' },
+  { code: 'NO-ORDER', label: '📋 No Order', icon: '📋', statusChange: 'OFF' },
+  { code: 'POWER', label: '⚡ Power Failure', icon: '⚡', statusChange: 'OFF' },
+  { code: 'MAINTENANCE', label: '🔧 Maintenance', icon: '🔧', statusChange: 'OFF' },
+  { code: 'CHANGEOVER', label: '🔄 Changeover', icon: '🔄', statusChange: 'OFF' },
 ];
 
 const maintenanceItems = [
@@ -100,20 +100,34 @@ export default function App() {
     Alert.alert('🔴 Downtime Reported', `${reason.label}`);
   };
 
+  // ✅ FIXED: Maintenance COMPLETE - NO FORCE RUNNING
   const completeMaintenance = async (item) => {
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
+    
+    const machineId = item.machineId;
+    const machine = machines.find(m => m.id === machineId);
+    
     await saveOperatorEvent({
       id: Date.now().toString(),
       type: 'maintenance',
       task: item.title,
-      machine: maintenanceItems.find(m => m.id === item.id)?.machineId,
+      machine: machine?.name || 'Unknown',
+      machineId: machineId,
       time: new Date().toLocaleTimeString(),
       icon: '🔧'
     });
-    const machineId = maintenanceItems.find(m => m.id === item.id)?.machineId;
-    updateMachineStatus(machineId, 'RUN');
-    Alert.alert('✅ Complete!', `${item.title} done`);
+    
+    // ✅ AND LOGIC: Only show warning if machine has downtime
+    if (machine?.status !== 'OFF') {
+      Alert.alert('✅ Maintenance Complete!', `${item.title} done on ${machine?.name}`);
+    } else {
+      Alert.alert('⚠️ Maintenance Done', 
+        `${machine?.name} still has downtime reason. Select "Working Properly" to restart machine.`,
+        [{ text: 'OK' }]
+      );
+    }
+    // NO updateMachineStatus() - Machine stays in current state PERFECT!
   };
 
   const acknowledgeEvent = (event) => {
@@ -138,11 +152,10 @@ export default function App() {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#1e3a8a" />
         <View style={styles.gradientHeader}>
-          {/* ✅ FIXED: No more question mark */}
           <View style={styles.factoryIconContainer}>
             <Ionicons name="build-outline" size={72} color="white" />
           </View>
-          <Text style={styles.appTitle}>DOWNTIME TRACKER</Text>
+          <Text style={styles.appTitle}>DOWNTIMETRACKER</Text>
           <Text style={styles.appSubtitle}>Real-time Downtime & Alert Management</Text>
         </View>
         <View style={styles.loginCard}>
@@ -174,7 +187,7 @@ export default function App() {
             <Text style={styles.loginBtnText}>ENTER SYSTEM</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.tenantId}></Text>
+        <Text style={styles.tenantId}>tenant_id: tenant-123</Text>
       </View>
     );
   }
