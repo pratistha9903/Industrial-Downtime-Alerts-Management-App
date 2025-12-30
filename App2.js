@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
   StatusBar,
   Dimensions,
   Image,
-  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -77,34 +76,38 @@ export default function App() {
   const [selectedReason, setSelectedReason] = useState(null);
   const [photoUri, setPhotoUri] = useState(null);
   const [notes, setNotes] = useState('');
-  const [operatorEvents, setOperatorEvents] = useState([]); // SUPERVISOR SEES THESE
+  const [operatorEvents, setOperatorEvents] = useState([]);
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
-    loadAllData();
-  }, []);
+    // FIXED: Always start with login screen
+    const initializeApp = async () => {
+      try {
+        const jwtToken = await AsyncStorage.getItem('jwt');
+        const roleStored = await AsyncStorage.getItem('role');
+        const queue = await AsyncStorage.getItem('pendingQueue');
+        const machineData = await AsyncStorage.getItem('machines');
+        const eventsData = await AsyncStorage.getItem('operatorEvents');
 
-  const loadAllData = async () => {
-    try {
-      const jwtToken = await AsyncStorage.getItem('jwt');
-      const roleStored = await AsyncStorage.getItem('role');
-      const queue = await AsyncStorage.getItem('pendingQueue');
-      const machineData = await AsyncStorage.getItem('machines');
-      const eventsData = await AsyncStorage.getItem('operatorEvents');
-
-      if (jwtToken) {
-        setJwt(jwtToken);
-        setEmail(jwtToken.split('|')[0] || '');
+        // Load data but ALWAYS show login first
+        if (jwtToken) {
+          setJwt(jwtToken);
+          setEmail(jwtToken.split('|')[0] || '');
+        }
         if (roleStored) setRole(roleStored);
-        setScreen('home');
+        if (queue) setPendingQueue(JSON.parse(queue));
+        if (machineData) setMachines(JSON.parse(machineData));
+        if (eventsData) setOperatorEvents(JSON.parse(eventsData));
+        
+        // FORCE LOGIN SCREEN ON START
+        setScreen('login');
+      } catch (error) {
+        console.log('Load error:', error);
+        setScreen('login');
       }
-      if (queue) setPendingQueue(JSON.parse(queue));
-      if (machineData) setMachines(JSON.parse(machineData));
-      if (eventsData) setOperatorEvents(JSON.parse(eventsData));
-    } catch (error) {
-      console.log('Load error:', error);
-    }
-  };
+    };
+    initializeApp();
+  }, []);
 
   const saveAllData = async () => {
     try {
@@ -220,11 +223,9 @@ export default function App() {
       icon: '🔧',
     };
 
-    // ADD TO PENDING QUEUE
     const newQueue = [...pendingQueue, event];
     setPendingQueue(newQueue);
 
-    // ADD TO SUPERVISOR EVENTS
     const machine = machines.find(m => m.id === item.machineId);
     const supervisorEvent = {
       id: event.id,
@@ -265,6 +266,82 @@ export default function App() {
     });
     Alert.alert('✅', 'Event acknowledged');
   };
+
+  // FIXED: NO ScrollView + FlatList nesting
+  if (screen === 'downtime') {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.reasonHeader}>
+          <TouchableOpacity onPress={() => setScreen('home')} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={20} color="#1e293b" />
+          </TouchableOpacity>
+          <Text style={styles.machineNameHeader}>{selectedMachine?.name}</Text>
+          <TouchableOpacity onPress={toggleOnlineStatus}>
+            <Text style={[styles.networkText, { color: isOnline ? '#10b981' : '#ef4444' }]}>
+              {isOnline ? 'ONLINE' : 'OFFLINE'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* FIXED: Single FlatList wrapper - NO ScrollView nesting */}
+        <FlatList
+          data={[{ id: 'content' }]}
+          renderItem={() => (
+            <View style={styles.downtimeContent}>
+              <Text style={styles.reasonTitle}>
+                {currentLevel === 0 ? 'SELECT REASON' : selectedReason?.label}
+              </Text>
+
+              {/* Reasons - scrollEnabled={false} prevents nesting warning */}
+              <FlatList
+                data={currentReasons}
+                scrollEnabled={false}
+                style={styles.reasonNestedList}
+                contentContainerStyle={styles.reasonList}
+                renderItem={({ item }) => (
+                  <TouchableOpacity style={styles.reasonCard} onPress={() => selectReasonLevel(item)}>
+                    <View style={styles.reasonIconContainer}>
+                      <Text style={styles.reasonIcon}>{item.icon || '➤'}</Text>
+                    </View>
+                    <Text style={styles.reasonLabel}>{item.label}</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => item.code || index.toString()}
+              />
+
+              {currentLevel === 1 && (
+                <>
+                  <TouchableOpacity style={styles.photoBtn} onPress={takePhoto}>
+                    <Ionicons name={photoUri ? "checkmark-circle" : "camera-outline"} size={24} color="#10b981" />
+                    <Text style={styles.photoBtnText}>
+                      {photoUri ? '✅ Photo Added' : '📸 Add Photo'}
+                    </Text>
+                  </TouchableOpacity>
+                  {photoUri && <Image source={{ uri: photoUri }} style={styles.photoPreview} />}
+                  
+                  <TextInput
+                    style={styles.notesInput}
+                    placeholder="Notes (optional)"
+                    value={notes}
+                    onChangeText={setNotes}
+                    multiline
+                  />
+                  
+                  <TouchableOpacity style={styles.submitBtn} onPress={() => handleDowntimeSubmit(currentReasons[0])}>
+                    <Text style={styles.submitBtnText}>SUBMIT DOWNTIME</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          )}
+          keyExtractor={() => 'downtime-content'}
+          style={{ flex: 1 }}
+        />
+      </View>
+    );
+  }
 
   if (screen === 'login') {
     return (
@@ -311,76 +388,13 @@ export default function App() {
     );
   }
 
-  if (screen === 'downtime') {
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.reasonHeader}>
-          <TouchableOpacity onPress={() => setScreen('home')} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={20} color="#1e293b" />
-          </TouchableOpacity>
-          <Text style={styles.machineNameHeader}>{selectedMachine?.name}</Text>
-          <TouchableOpacity onPress={toggleOnlineStatus}>
-            <Text style={[styles.networkText, { color: isOnline ? '#10b981' : '#ef4444' }]}>
-              {isOnline ? 'ONLINE' : 'OFFLINE'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-          <Text style={styles.reasonTitle}>
-            {currentLevel === 0 ? 'SELECT REASON' : selectedReason?.label}
-          </Text>
-
-          <FlatList
-            data={currentReasons}
-            style={{ maxHeight: 300 }}
-            contentContainerStyle={styles.reasonList}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.reasonCard} onPress={() => selectReasonLevel(item)}>
-                <View style={styles.reasonIconContainer}>
-                  <Text style={styles.reasonIcon}>{item.icon || '➤'}</Text>
-                </View>
-                <Text style={styles.reasonLabel}>{item.label}</Text>
-                <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => item.code || index.toString()}
-          />
-
-          {currentLevel === 1 && (
-            <>
-              <TouchableOpacity style={styles.photoBtn} onPress={takePhoto}>
-                <Ionicons name={photoUri ? "checkmark-circle" : "camera-outline"} size={24} color="#10b981" />
-                <Text style={styles.photoBtnText}>
-                  {photoUri ? '✅ Photo Added' : '📸 Add Photo'}
-                </Text>
-              </TouchableOpacity>
-              {photoUri && <Image source={{ uri: photoUri }} style={styles.photoPreview} />}
-              
-              <TextInput
-                style={styles.notesInput}
-                placeholder="Notes (optional)"
-                value={notes}
-                onChangeText={setNotes}
-                multiline
-              />
-              
-              <TouchableOpacity style={styles.submitBtn} onPress={() => handleDowntimeSubmit(currentReasons[0])}>
-                <Text style={styles.submitBtnText}>SUBMIT DOWNTIME</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </ScrollView>
-      </View>
-    );
-  }
-
-  // Home screen render functions
+  // HOME SCREEN
   const renderMachineCard = ({ item }) => (
     <View style={styles.machineCardContainer}>
-      <TouchableOpacity style={[styles.machineCard, getMachineCardStyle(item.status)]}
-        onPress={() => startDowntime(item)}>
+      <TouchableOpacity 
+        style={[styles.machineCard, getMachineCardStyle(item.status)]}
+        onPress={() => startDowntime(item)}
+      >
         <View style={styles.machineHeader}>
           <View style={styles.machineInfo}>
             <Text style={styles.machineName}>{item.name}</Text>
@@ -401,7 +415,7 @@ export default function App() {
         <TouchableOpacity
           key={mItem.id}
           style={[
-            styles.maintenanceCard,
+            styles.maintenanceCard, 
             mItem.status === 'overdue' && styles.maintenanceOverdue,
             mItem.status === 'done' && styles.maintenanceDone
           ]}
@@ -489,7 +503,6 @@ export default function App() {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* SUPERVISOR SEES OPERATOR EVENTS - NOT RANDOM ALERTS */}
       {role === 'supervisor' && operatorEvents.length > 0 && (
         <View style={styles.eventsSection}>
           <View style={styles.sectionHeader}>
@@ -507,7 +520,10 @@ export default function App() {
 
       <TouchableOpacity 
         style={styles.logoutBtn} 
-        onPress={() => setScreen('login')}
+        onPress={() => {
+          AsyncStorage.multiRemove(['jwt', 'role', 'pendingQueue', 'machines', 'operatorEvents']);
+          setScreen('login');
+        }}
       >
         <Ionicons name="log-out-outline" size={16} color="white" />
         <Text style={styles.logoutText}>LOGOUT</Text>
@@ -532,8 +548,6 @@ const getMachineCardStyle = (status) => {
     default: return styles.machineCardOff;
   }
 };
-
-// COMPLETE STYLES (from previous response)
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0f172a' },
   gradientHeader: {
