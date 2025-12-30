@@ -17,9 +17,9 @@
 ## 📱 Run on Phone - 4 Methods
 
 ### **Method 1: Expo Go QR Scan (Recommended)**
+
 npx expo start --clear
 
-text
 **📱 On phone:** Download Expo Go → Scan QR code → App loads instantly
 
 ### **Method 2: Live EAS Update (No Install)**
@@ -33,21 +33,26 @@ text
 3. Allow debugging popup → `adb devices` (shows your device)
 
 **Laptop Commands:**
+
 adb devices # Verify connection
+
 npx expo start --clear --android # Auto-launches on phone
 
-text
+
 
 ### **Method 4: Production APK**
+
 eas login
+
 eas build --platform android --profile preview
 
-text
+
 **📥 Download APK:** expo.dev dashboard → Builds tab → Install directly
 
 ---
 
 ## ✅ Offline Demo Flow (Test All Methods)
+
 Login: john@factory.com → Operator role
 
 ✈️ Airplane Mode ON
