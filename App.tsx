@@ -12,11 +12,11 @@ const INITIAL_MACHINES = [
 ];
 
 const reasonTree = [
-  { code: 'WORKING-PROPERLY', label: '✅ Working Properly', icon: '🟢', statusChange: 'RUN' },
-  { code: 'NO-ORDER', label: '📋 No Order', icon: '📋', statusChange: 'OFF' },
-  { code: 'POWER', label: '⚡ Power Failure', icon: '⚡', statusChange: 'OFF' },
-  { code: 'MAINTENANCE', label: '🔧 Maintenance', icon: '🔧', statusChange: 'OFF' },
-  { code: 'CHANGEOVER', label: '🔄 Changeover', icon: '🔄', statusChange: 'OFF' },
+  { code: 'WORKING-PROPERLY', label: ' Working Properly', icon: '✅', statusChange: 'RUN' },
+  { code: 'NO-ORDER', label: ' No Order', icon: '📋', statusChange: 'OFF' },
+  { code: 'POWER', label: ' Power Failure', icon: '⚡', statusChange: 'OFF' },
+  { code: 'MAINTENANCE', label: ' Maintenance', icon: '🔧', statusChange: 'OFF' },
+  { code: 'CHANGEOVER', label: ' Changeover', icon: '🔄', statusChange: 'OFF' },
 ];
 
 const maintenanceItems = [
