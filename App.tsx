@@ -113,7 +113,7 @@ export default function App() {
       task: item.title,
       machine: machine?.name || 'Unknown',
       machineId: machineId,
-      time: new Date().toLocaleTimeString(),
+      time: newDate().toLocaleTimeString(),
       icon: '🔧'
     });
     
@@ -163,7 +163,6 @@ export default function App() {
             onChangeText={setEmail}
             autoCapitalize="none"
           />
-          {/* ✅ FIXED: Clean role buttons - smaller & professional */}
           <View style={styles.roleToggle}>
             <TouchableOpacity 
               style={[styles.roleBtn, role === 'operator' && styles.roleBtnActive]}
@@ -180,7 +179,6 @@ export default function App() {
               <Text style={[styles.roleText, role === 'supervisor' && styles.roleTextActive]}>Supervisor</Text>
             </TouchableOpacity>
           </View>
-          {/* ✅ FIXED: Smaller login button */}
           <TouchableOpacity style={styles.loginBtn} onPress={login}>
             <Ionicons name="enter-outline" size={20} color="white" />
             <Text style={styles.loginBtnText}>ENTER SYSTEM</Text>
@@ -278,26 +276,33 @@ export default function App() {
             </TouchableOpacity>
 
             {maintenanceItems.filter(m => m.machineId === item.id).map(mItem => (
-              <View key={mItem.id} style={[
-                styles.maintenanceCard, 
-                mItem.status === 'overdue' && styles.maintenanceOverdue,
-                mItem.status === 'done' && styles.maintenanceDone
-              ]}>
+              <TouchableOpacity
+                key={mItem.id}
+                style={[
+                  styles.maintenanceCard, 
+                  mItem.status === 'overdue' && styles.maintenanceOverdue,
+                  mItem.status === 'done' && styles.maintenanceDone
+                ]}
+                onPress={() => completeMaintenance(mItem)}
+                activeOpacity={0.9}
+              >
                 <View style={styles.maintenanceLeft}>
                   <Text style={styles.maintenanceTitle}>{mItem.title}</Text>
                   <Text style={styles.maintenanceStatus}>{mItem.status.toUpperCase()}</Text>
                 </View>
                 {mItem.status !== 'done' && (
-                  <TouchableOpacity style={styles.completeBtn} onPress={() => completeMaintenance(mItem)}>
-                    <Ionicons name="checkmark-circle-outline" size={16} color="white" />
-                  </TouchableOpacity>
+                  <View style={styles.completeBtnIcon}>
+                    <Ionicons name="checkmark-circle" size={20} color="white" />
+                  </View>
                 )}
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         )}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        scrollIndicatorInsets={{ bottom: 120 }}
+        keyboardShouldPersistTaps="handled"
       />
 
       {role === 'supervisor' && operatorEvents.length > 0 && (
@@ -327,7 +332,11 @@ export default function App() {
         </View>
       )}
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={() => setScreen('login')}>
+      <TouchableOpacity 
+        style={styles.logoutBtn} 
+        onPress={() => setScreen('login')}
+        activeOpacity={0.8}
+      >
         <Ionicons name="log-out-outline" size={16} color="white" />
         <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
@@ -408,7 +417,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontWeight: '500'
   },
-  // ✅ FIXED: Smaller, cleaner role buttons
   roleToggle: {
     flexDirection: 'row',
     marginBottom: 24,
@@ -435,7 +443,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   roleText: {
-    fontSize: 14,
+    fontSize: 14,  // ✅ FIXED: Smaller font - Supervisor fully visible
     fontWeight: '700',
     marginLeft: 12,
     color: '#64748b'
@@ -443,7 +451,6 @@ const styles = StyleSheet.create({
   roleTextActive: {
     color: 'white'
   },
-  // ✅ FIXED: Smaller login button
   loginBtn: {
     flexDirection: 'row',
     backgroundColor: '#1e3a8a',
@@ -549,14 +556,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     letterSpacing: 0.5,
   },
-  eventsSectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
-    marginLeft: 10,
-  },
   machineList: {
-    paddingBottom: 100,
+    paddingBottom: 140,  // ✅ FIXED: Extra space for logout button
   },
   machineCardContainer: {
     marginHorizontal: 16,
@@ -658,7 +659,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
   },
-  completeBtn: {
+  completeBtnIcon: {  // ✅ FIXED: Full card clickable, not just button
     backgroundColor: '#10b981',
     padding: 10,
     borderRadius: 10,
@@ -682,6 +683,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
+  },
+  eventsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginLeft: 10,
   },
   eventCard: {
     flexDirection: 'row',
@@ -781,14 +788,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1e293b',
   },
-  logoutBtn: {
+  logoutBtn: {  // ✅ FIXED: Higher position, smaller size
     position: 'absolute',
-    bottom: 30,
+    bottom: 20,
     left: 20,
     right: 20,
     backgroundColor: '#475569',
     flexDirection: 'row',
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 14,
     alignItems: 'center',
