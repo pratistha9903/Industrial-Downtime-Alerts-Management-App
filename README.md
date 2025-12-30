@@ -77,17 +77,17 @@ npm i -g eas-cli # Install EAS CLI (one-time)
 ### 🛠️ Clone, Install & Run **(3 Commands)**
 1. Clone repo
    
-git clone https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App.git
+ git clone https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App.git
 
 cd Industrial-Downtime-Alerts-Management-App
 
 3. Install dependencies
    
-npm install
+ npm install
 
 5. Start development server
    
-npx expo start --clear
+ npx expo start --clear
 
 
 **📱 Scan QR code with Expo Go app → App loads instantly**
