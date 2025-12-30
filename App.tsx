@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, StatusBar, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const INITIAL_MACHINES = [
   { id: 'M-101', name: 'Cutter 1', type: 'cutter', status: 'RUN' },
@@ -10,20 +12,18 @@ const INITIAL_MACHINES = [
 ];
 
 const reasonTree = [
-  { code: 'WORKING-PROPERLY', label: '✅ Working Properly - No Problem', icon: '🟢', statusChange: 'RUN' },
-  { code: 'NO-ORDER-PLANNED', label: '📋 No Order → Planned', icon: '📋', statusChange: 'OFF' },
-  { code: 'NO-ORDER-UNPLANNED', label: '❓ No Order → Unplanned', icon: '❓', statusChange: 'OFF' },
-  { code: 'POWER-GRID', label: '⚡ Power → Grid Failure', icon: '⚡', statusChange: 'OFF' },
-  { code: 'POWER-INTERNAL', label: '🔌 Power → Internal', icon: '🔌', statusChange: 'OFF' },
-  { code: 'CHANGEOVER-TOOLING', label: '🔧 Changeover → Tooling', icon: '🔧', statusChange: 'OFF' },
-  { code: 'CHANGEOVER-PRODUCT', label: '📦 Changeover → Product', icon: '📦', statusChange: 'OFF' },
+  { code: 'WORKING-PROPERLY', label: 'Working Properly', icon: '✅ ', statusChange: 'RUN' },
+  { code: 'NO-ORDER', label: 'No Order', icon: '📋', statusChange: 'OFF' },
+  { code: 'POWER', label: ' Power Failure', icon: '⚡', statusChange: 'OFF' },
+  { code: 'MAINTENANCE', label: ' Maintenance', icon: '🔧', statusChange: 'OFF' },
+  { code: 'CHANGEOVER', label: ' Changeover', icon: '🔄', statusChange: 'OFF' },
 ];
 
 const maintenanceItems = [
   { id: 'm1', machineId: 'M-101', title: '🛢️ Oil filter change', status: 'due' },
   { id: 'm2', machineId: 'M-102', title: '⛓️ Belt tension check', status: 'overdue' },
   { id: 'm3', machineId: 'M-101', title: '✂️ Clean cutter blades', status: 'done' },
-  { id: 'm4', machineId: 'M-103', title: '📡 Inspect packing sensors', status: 'due' },
+  { id: 'm4', machineId: 'M-103', title: '📡 Inspect sensors', status: 'due' },
 ];
 
 export default function App() {
@@ -45,21 +45,16 @@ export default function App() {
     try {
       const count = await AsyncStorage.getItem('pendingCount');
       if (count) setPendingCount(parseInt(count));
-      
       const events = await AsyncStorage.getItem('operatorEvents');
       if (events) setOperatorEvents(JSON.parse(events));
-    } catch (error) {
-      console.log('Load error');
-    }
+    } catch (error) {}
   };
 
   const savePendingCount = async (count) => {
     try {
       setPendingCount(count);
       await AsyncStorage.setItem('pendingCount', count.toString());
-    } catch (error) {
-      console.log('Save error');
-    }
+    } catch (error) {}
   };
 
   const saveOperatorEvent = async (event) => {
@@ -69,13 +64,11 @@ export default function App() {
   };
 
   const updateMachineStatus = (machineId, newStatus) => {
-    setMachines(machines.map(m => 
-      m.id === machineId ? { ...m, status: newStatus } : m
-    ));
+    setMachines(machines.map(m => m.id === machineId ? { ...m, status: newStatus } : m));
   };
 
   const login = () => {
-    if (!email) return Alert.alert('Error', 'Enter email');
+    if (!email.trim()) return Alert.alert('Error', 'Enter email');
     setScreen('home');
   };
 
@@ -88,13 +81,12 @@ export default function App() {
     if (reason.code === 'WORKING-PROPERLY') {
       updateMachineStatus(selectedMachine.id, 'RUN');
       setShowReasons(false);
-      Alert.alert('🟢 Machine Status', `${selectedMachine.name} marked as WORKING PROPERLY`);
+      Alert.alert('✅ Status Updated', `${selectedMachine.name} → RUNNING`);
       return;
     }
 
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
-    
     await saveOperatorEvent({
       id: Date.now().toString(),
       type: 'downtime',
@@ -103,44 +95,39 @@ export default function App() {
       time: new Date().toLocaleTimeString(),
       icon: reason.icon
     });
-    
     updateMachineStatus(selectedMachine.id, 'OFF');
     setShowReasons(false);
-    Alert.alert('✅ Downtime Started', `${reason.label} on ${selectedMachine.name}`);
+    Alert.alert('🔴 Downtime Reported', `${reason.label}`);
   };
 
   const completeMaintenance = async (item) => {
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
-    
     await saveOperatorEvent({
       id: Date.now().toString(),
       type: 'maintenance',
       task: item.title,
-      machine: maintenanceItems.find(m => m.id === item.id)?.machineId || 'Unknown',
+      machine: maintenanceItems.find(m => m.id === item.id)?.machineId,
       time: new Date().toLocaleTimeString(),
       icon: '🔧'
     });
-    
     const machineId = maintenanceItems.find(m => m.id === item.id)?.machineId;
     updateMachineStatus(machineId, 'RUN');
-    Alert.alert('✅ Complete!', `${item.title} marked done`);
+    Alert.alert('✅ Complete!', `${item.title} done`);
   };
 
   const acknowledgeEvent = (event) => {
     setOperatorEvents(operatorEvents.filter(e => e.id !== event.id));
-    Alert.alert('✅ Seen', `Operator action acknowledged`);
+    Alert.alert('✅ Acknowledged', 'Event marked as seen');
   };
 
-  // 🔥 FIXED SYNC - SUPERVISOR ONLY + PERFECT WORKING
   const syncData = async () => {
     try {
       setPendingCount(0);
-      setOperatorEvents([]); // Clear events after sync
+      setOperatorEvents([]);
       await AsyncStorage.multiRemove(['pendingCount', 'operatorEvents']);
-      Alert.alert('🔄 Synced!', 'All data uploaded successfully!');
-      setIsOnline(true);
-      setMachines(INITIAL_MACHINES); // Reset machines
+      setMachines(INITIAL_MACHINES);
+      Alert.alert('✅ Synced!', 'All data uploaded successfully!');
     } catch (error) {
       Alert.alert('Sync Error', 'Check connection');
     }
@@ -149,34 +136,45 @@ export default function App() {
   if (screen === 'login') {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <Text style={styles.title}>ShopFloor App</Text>
-        <Text style={styles.subtitle}>Offline-First Field App</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email (any)"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-        />
-        <View style={styles.roleToggle}>
-          <TouchableOpacity 
-            style={[styles.toggle, role === 'operator' && styles.active]} 
-            onPress={() => setRole('operator')}
-          >
-            <Text style={styles.toggleText}>👷 Operator</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.toggle, role === 'supervisor' && styles.active]} 
-            onPress={() => setRole('supervisor')}
-          >
-            <Text style={styles.toggleText}>👮 Supervisor</Text>
+        <StatusBar barStyle="light-content" backgroundColor="#1e3a8a" />
+        <View style={styles.gradientHeader}>
+          {/* ✅ FIXED: No more question mark */}
+          <View style={styles.factoryIconContainer}>
+            <Ionicons name="build-outline" size={72} color="white" />
+          </View>
+          <Text style={styles.appTitle}>DOWNTIME TRACKER</Text>
+          <Text style={styles.appSubtitle}>Real-time Downtime & Alert Management</Text>
+        </View>
+        <View style={styles.loginCard}>
+          <TextInput
+            style={styles.input}
+            placeholder="john@factory.com"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+          />
+          <View style={styles.roleToggle}>
+            <TouchableOpacity 
+              style={[styles.roleBtn, role === 'operator' && styles.roleBtnActive]}
+              onPress={() => setRole('operator')}
+            >
+              <Ionicons name="construct-outline" size={28} color={role === 'operator' ? 'white' : '#64748b'} />
+              <Text style={[styles.roleText, role === 'operator' && styles.roleTextActive]}>Operator</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.roleBtn, role === 'supervisor' && styles.roleBtnActive]}
+              onPress={() => setRole('supervisor')}
+            >
+              <Ionicons name="shield-checkmark-outline" size={28} color={role === 'supervisor' ? 'white' : '#64748b'} />
+              <Text style={[styles.roleText, role === 'supervisor' && styles.roleTextActive]}>Supervisor</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.loginBtn} onPress={login}>
+            <Ionicons name="enter-outline" size={24} color="white" />
+            <Text style={styles.loginBtnText}>ENTER SYSTEM</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.button} onPress={login}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <Text style={styles.tenantId}>tenant_id: tenant-123</Text>
+        <Text style={styles.tenantId}></Text>
       </View>
     );
   }
@@ -184,78 +182,102 @@ export default function App() {
   if (showReasons) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Select Machine Status</Text>
-        <Text style={styles.machineTitle}>{selectedMachine?.name}</Text>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.reasonHeader}>
+          <TouchableOpacity onPress={() => setShowReasons(false)} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={24} color="#1e293b" />
+          </TouchableOpacity>
+          <Text style={styles.machineNameHeader}>{selectedMachine?.name}</Text>
+        </View>
+        <Text style={styles.reasonTitle}>UPDATE STATUS</Text>
         <FlatList
           data={reasonTree}
+          contentContainerStyle={styles.reasonList}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.reasonItem} onPress={() => selectReason(item)}>
-              <Text style={styles.reasonIcon}>{item.icon}</Text>
-              <Text style={styles.reasonText}>{item.label}</Text>
+            <TouchableOpacity style={styles.reasonCard} onPress={() => selectReason(item)}>
+              <View style={styles.reasonIconContainer}>
+                <Text style={styles.reasonIcon}>{item.icon}</Text>
+              </View>
+              <Text style={styles.reasonLabel}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={24} color="#cbd5e1" />
             </TouchableOpacity>
           )}
           keyExtractor={(item) => item.code}
         />
-        <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowReasons(false)}>
-          <Text style={styles.cancelText}>❌ Cancel</Text>
-        </TouchableOpacity>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header - SUPERVISOR SYNC ONLY */}
-      <View style={styles.header}>
-        {pendingCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{pendingCount} pending</Text>
+      <StatusBar barStyle="dark-content" />
+      
+      <View style={styles.dashboardHeader}>
+        <View style={styles.headerLeft}>
+          <Ionicons name={role === 'operator' ? "construct-outline" : "shield-checkmark-outline"} size={32} color="#1e293b" />
+          <View>
+            <Text style={styles.roleTitle}>{role.toUpperCase()}</Text>
+            <Text style={styles.roleSubtitle}>Dashboard</Text>
           </View>
-        )}
-        <Text style={styles.statusText}>{isOnline ? '🟢 Online' : '🔴 Offline'}</Text>
-        {/* 🔥 SYNC ONLY FOR SUPERVISOR */}
-        {role === 'supervisor' && (
-          <TouchableOpacity 
-            style={[styles.syncBtn, pendingCount === 0 && styles.syncBtnDisabled]} 
-            onPress={syncData}
-            disabled={pendingCount === 0}
-          >
-            <Text style={styles.syncText}>🔄 Sync ({pendingCount})</Text>
-          </TouchableOpacity>
-        )}
+        </View>
+        <View style={styles.headerRight}>
+          {pendingCount > 0 && (
+            <View style={styles.pendingBadge}>
+              <Text style={styles.pendingText}>{pendingCount}</Text>
+            </View>
+          )}
+          <Text style={[styles.onlineStatus, { color: isOnline ? '#10b981' : '#ef4444' }]}>
+            {isOnline ? 'ONLINE' : 'OFFLINE'}
+          </Text>
+          {role === 'supervisor' && (
+            <TouchableOpacity 
+              style={[styles.syncBtnHeader, pendingCount === 0 && styles.syncBtnDisabled]}
+              onPress={syncData}
+              disabled={pendingCount === 0}
+            >
+              <Ionicons name="sync-outline" size={20} color={pendingCount === 0 ? '#9ca3af' : 'white'} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
-      <Text style={styles.headerText}>Machines ({role})</Text>
+      <Text style={styles.sectionTitle}>MACHINE STATUS</Text>
 
-      {/* Machines + Maintenance */}
       <FlatList
         data={machines}
+        contentContainerStyle={styles.machineList}
         renderItem={({ item }) => (
-          <View style={styles.machineContainer}>
-            <TouchableOpacity style={styles.machineCard} onPress={() => startDowntime(item)}>
-              <Text style={styles.machineName}>{item.name}</Text>
-              <Text style={styles.machineType}>{item.type.toUpperCase()}</Text>
-              <View style={[styles.statusChip, { backgroundColor: getStatusColor(item.status) }]}>
-                <Text style={styles.statusText}>{item.status}</Text>
+          <View style={styles.machineCardContainer}>
+            <TouchableOpacity 
+              style={[styles.machineCard, getMachineCardStyle(item.status)]}
+              onPress={() => startDowntime(item)}
+              activeOpacity={0.95}
+            >
+              <View style={styles.machineHeader}>
+                <View style={styles.machineInfo}>
+                  <Text style={styles.machineName}>{item.name}</Text>
+                  <Text style={styles.machineType}>{item.type.toUpperCase()}</Text>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+                  <Text style={styles.statusBadgeText}>{item.status}</Text>
+                </View>
               </View>
+              <Ionicons name="chevron-forward" size={24} color="#cbd5e1" />
             </TouchableOpacity>
 
             {maintenanceItems.filter(m => m.machineId === item.id).map(mItem => (
               <View key={mItem.id} style={[
-                styles.maintenanceItem, 
-                mItem.status === 'overdue' && styles.overdue,
-                mItem.status === 'done' && styles.done
+                styles.maintenanceCard, 
+                mItem.status === 'overdue' && styles.maintenanceOverdue,
+                mItem.status === 'done' && styles.maintenanceDone
               ]}>
-                <View style={styles.mItemLeft}>
-                  <Text style={styles.mItemTitle}>{mItem.title}</Text>
-                  <Text style={styles.mItemStatus}>{mItem.status.toUpperCase()}</Text>
+                <View style={styles.maintenanceLeft}>
+                  <Text style={styles.maintenanceTitle}>{mItem.title}</Text>
+                  <Text style={styles.maintenanceStatus}>{mItem.status.toUpperCase()}</Text>
                 </View>
                 {mItem.status !== 'done' && (
-                  <TouchableOpacity 
-                    style={styles.completeBtn}
-                    onPress={() => completeMaintenance(mItem)}
-                  >
-                    <Text style={styles.completeText}>✅ Complete</Text>
+                  <TouchableOpacity style={styles.completeBtn} onPress={() => completeMaintenance(mItem)}>
+                    <Ionicons name="checkmark-circle-outline" size={20} color="white" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -263,33 +285,39 @@ export default function App() {
           </View>
         )}
         keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
       />
 
-      {/* Supervisor Sees Operator Events */}
       {role === 'supervisor' && operatorEvents.length > 0 && (
-        <View style={styles.alertsSection}>
-          <Text style={styles.sectionTitle}>Operator Events ({operatorEvents.length})</Text>
-          {operatorEvents.map((event) => (
-            <View key={event.id} style={styles.alertCard}>
-              <Text style={styles.alertMsg}>
-                {event.type === 'downtime' ? '🔴 Downtime' : '🔧 Maintenance'}: 
-                {event.reason || event.task} 
-                ({event.machine} - {event.time})
-              </Text>
-              <TouchableOpacity 
-                style={styles.ackBtn}
-                onPress={() => acknowledgeEvent(event)}
-              >
-                <Text style={styles.ackText}>✅ Seen</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+        <View style={styles.eventsSection}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="notifications-outline" size={24} color="#ef4444" />
+            <Text style={styles.eventsSectionTitle}>OPERATOR EVENTS ({operatorEvents.length})</Text>
+          </View>
+          <FlatList
+            data={operatorEvents.slice(0, 5)}
+            renderItem={({ item }) => (
+              <View style={styles.eventCard}>
+                <Text style={styles.eventIcon}>{item.icon}</Text>
+                <View style={styles.eventContent}>
+                  <Text style={styles.eventType}>{item.type === 'downtime' ? 'DOWNTIME' : 'MAINTENANCE'}</Text>
+                  <Text style={styles.eventDesc}>{item.reason || item.task}</Text>
+                  <Text style={styles.eventTime}>{item.machine} • {item.time}</Text>
+                </View>
+                <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
+                  <Ionicons name="checkmark-outline" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+            )}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
       )}
 
-      {/* Logout */}
       <TouchableOpacity style={styles.logoutBtn} onPress={() => setScreen('login')}>
-        <Text style={styles.logoutText}>🚪 Logout</Text>
+        <Ionicons name="log-out-outline" size={20} color="white" />
+        <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
     </View>
   );
@@ -297,276 +325,464 @@ export default function App() {
 
 const getStatusColor = (status) => {
   switch (status) {
-    case 'RUN': return '#10B981';
-    case 'IDLE': return '#F59E0B';
-    default: return '#EF4444';
+    case 'RUN': return '#10b981';
+    case 'IDLE': return '#f59e0b';
+    default: return '#ef4444';
+  }
+};
+
+const getMachineCardStyle = (status) => {
+  switch (status) {
+    case 'RUN': return styles.machineCardRunning;
+    case 'IDLE': return styles.machineCardIdle;
+    default: return styles.machineCardOff;
   }
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 20, 
-    backgroundColor: '#f5f5f5',
-    paddingTop: 50 
+  container: {
+    flex: 1,
+    backgroundColor: '#0f172a'
   },
-  title: { 
-    fontSize: 32, 
-    fontWeight: 'bold', 
-    textAlign: 'center', 
-    marginBottom: 10,
-    color: '#333'
-  },
-  subtitle: { 
-    fontSize: 16, 
-    textAlign: 'center', 
-    marginBottom: 40,
-    color: '#666'
-  },
-  input: { 
-    borderWidth: 1, 
-    padding: 16, 
-    marginBottom: 20, 
-    borderRadius: 12, 
-    backgroundColor: 'white',
-    borderColor: '#ddd',
-    fontSize: 16
-  },
-  roleToggle: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    marginBottom: 30 
-  },
-  toggle: { 
-    padding: 14, 
-    borderWidth: 1, 
-    borderRadius: 10, 
-    flex: 1, 
-    marginHorizontal: 8, 
-    backgroundColor: 'white',
-    borderColor: '#ddd'
-  },
-  active: { 
-    backgroundColor: '#007AFF', 
-    borderColor: '#007AFF' 
-  },
-  toggleText: { 
-    textAlign: 'center', 
-    fontWeight: 'bold', 
-    fontSize: 16,
-    color: '#333'
-  },
-  button: { 
-    backgroundColor: '#007AFF', 
-    padding: 18, 
-    borderRadius: 12, 
+  gradientHeader: {
+    backgroundColor: '#1e3a8a',
     alignItems: 'center',
-    marginBottom: 20
+    paddingTop: 60,
+    paddingBottom: 40,
   },
-  buttonText: { 
-    color: 'white', 
-    fontWeight: 'bold', 
-    fontSize: 18 
+  factoryIconContainer: {
+    width: 90,
+    height: 90,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  appTitle: {
+    fontSize: 36,
+    fontWeight: '900',
+    color: 'white',
+    letterSpacing: 2,
+  },
+  appSubtitle: {
+    fontSize: 18,
+    color: '#bfdbfe',
+    marginTop: 8,
+    fontWeight: '500'
+  },
+  loginCard: {
+    backgroundColor: 'white',
+    margin: 24,
+    padding: 32,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.3,
+    shadowRadius: 40,
+    elevation: 20,
+  },
+  input: {
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: '#f8fafc',
+    fontSize: 18,
+    marginBottom: 24,
+    fontWeight: '500'
+  },
+  roleToggle: {
+    flexDirection: 'row',
+    marginBottom: 32,
+  },
+  roleBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    marginHorizontal: 8,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 2,
+    borderColor: '#e2e8f0'
+  },
+  roleBtnActive: {
+    backgroundColor: '#10b981',
+    borderColor: '#10b981',
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  roleText: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginLeft: 16,
+    color: '#64748b'
+  },
+  roleTextActive: {
+    color: 'white'
+  },
+  loginBtn: {
+    flexDirection: 'row',
+    backgroundColor: '#1e3a8a',
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#1e3a8a',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+  loginBtnText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '800',
+    marginLeft: 12,
+    letterSpacing: 1
   },
   tenantId: {
     textAlign: 'center',
-    color: '#666',
-    fontSize: 12
+    color: '#94a3b8',
+    fontSize: 12,
+    marginTop: 24,
+    fontWeight: '500'
   },
-  header: {
+  dashboardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20
+    backgroundColor: 'white',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
   },
-  badge: { 
-    backgroundColor: '#EF4444', 
-    paddingHorizontal: 12, 
-    paddingVertical: 8, 
-    borderRadius: 20, 
-    marginBottom: 10 
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  badgeText: { 
-    color: 'white', 
-    fontWeight: 'bold', 
-    fontSize: 14 
+  roleTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginLeft: 16,
   },
-  statusText: { 
-    fontSize: 16, 
-    fontWeight: 'bold', 
-    marginBottom: 10 
+  roleSubtitle: {
+    fontSize: 14,
+    color: '#64748b',
+    marginLeft: 16,
+    fontWeight: '600'
   },
-  syncBtn: { 
-    backgroundColor: '#10B981', 
-    paddingHorizontal: 20, 
-    paddingVertical: 12, 
-    borderRadius: 10 
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  pendingBadge: {
+    backgroundColor: '#ef4444',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  pendingText: {
+    color: 'white',
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  onlineStatus: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginRight: 16,
+    textTransform: 'uppercase',
+  },
+  syncBtnHeader: {
+    backgroundColor: '#10b981',
+    padding: 12,
+    borderRadius: 12,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   syncBtnDisabled: {
-    backgroundColor: '#9CA3AF'
+    backgroundColor: '#9ca3af'
   },
-  syncText: { 
-    color: 'white', 
-    fontWeight: 'bold' 
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: 'white',
+    textAlign: 'center',
+    margin: 24,
+    marginBottom: 16,
+    letterSpacing: 1,
   },
-  headerText: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
+  eventsSectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginLeft: 12,
+  },
+  machineList: {
+    paddingBottom: 120,
+  },
+  machineCardContainer: {
+    marginHorizontal: 20,
     marginBottom: 20,
-    textAlign: 'center'
   },
-  machineContainer: { 
-    marginBottom: 20 
-  },
-  machineCard: { 
-    backgroundColor: 'white', 
-    padding: 20, 
-    borderRadius: 16, 
-    marginBottom: 12,
-    elevation: 3
-  },
-  machineName: { 
-    fontSize: 20, 
-    fontWeight: 'bold', 
-    marginBottom: 4 
-  },
-  machineType: { 
-    fontSize: 14, 
-    color: '#666', 
-    marginBottom: 12,
-    textTransform: 'uppercase'
-  },
-  statusChip: { 
-    paddingHorizontal: 16, 
-    paddingVertical: 8, 
-    borderRadius: 20, 
-    alignSelf: 'flex-start'
-  },
-  statusText: { 
-    color: 'white', 
-    fontWeight: 'bold', 
-    fontSize: 14 
-  },
-  maintenanceItem: { 
-    backgroundColor: 'white', 
-    padding: 16, 
-    borderRadius: 12, 
-    flexDirection: 'row', 
+  machineCard: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.15,
+    shadowRadius: 40,
+    elevation: 15,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 8
   },
-  overdue: { 
-    borderLeftWidth: 5, 
-    borderLeftColor: '#EF4444' 
+  machineCardRunning: {
+    borderLeftWidth: 6,
+    borderLeftColor: '#10b981',
   },
-  done: { 
-    borderLeftWidth: 5, 
-    borderLeftColor: '#10B981',
-    opacity: 0.7
+  machineCardIdle: {
+    borderLeftWidth: 6,
+    borderLeftColor: '#f59e0b',
   },
-  mItemLeft: {
-    flex: 1
+  machineCardOff: {
+    borderLeftWidth: 6,
+    borderLeftColor: '#ef4444',
   },
-  mItemTitle: { 
-    fontSize: 16, 
-    fontWeight: '500' 
+  machineHeader: {
+    flex: 1,
   },
-  mItemStatus: { 
-    fontSize: 12, 
-    color: '#666', 
-    marginTop: 4,
-    fontWeight: 'bold'
+  machineInfo: {
+    marginBottom: 8,
   },
-  completeBtn: { 
-    backgroundColor: '#10B981', 
-    paddingHorizontal: 16, 
-    paddingVertical: 8, 
-    borderRadius: 8 
+  machineName: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 4,
   },
-  completeText: { 
-    color: 'white', 
-    fontWeight: 'bold', 
-    fontSize: 12 
+  machineType: {
+    fontSize: 16,
+    color: '#64748b',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  alertsSection: { 
-    marginTop: 30,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#ddd'
+  statusBadge: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    minWidth: 80,
+    alignItems: 'center',
   },
-  sectionTitle: { 
-    fontSize: 20, 
-    fontWeight: 'bold', 
-    marginBottom: 16,
-    color: '#333'
+  statusBadgeText: {
+    color: 'white',
+    fontWeight: '800',
+    fontSize: 14,
+    textTransform: 'uppercase',
   },
-  alertCard: { 
-    backgroundColor: '#FEF2F2', 
-    padding: 16, 
-    borderRadius: 12, 
-    marginBottom: 12 
+  maintenanceCard: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    marginTop: 12,
+    padding: 20,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 6,
   },
-  alertMsg: { 
-    fontSize: 16, 
-    fontWeight: '500', 
-    marginBottom: 12,
-    lineHeight: 22
+  maintenanceOverdue: {
+    borderLeftWidth: 5,
+    borderLeftColor: '#ef4444',
   },
-  ackBtn: { 
-    backgroundColor: '#007AFF', 
-    padding: 12, 
-    borderRadius: 10, 
-    alignItems: 'center' 
+  maintenanceDone: {
+    borderLeftWidth: 5,
+    borderLeftColor: '#10b981',
+    opacity: 0.7,
   },
-  ackText: { 
-    color: 'white', 
-    fontWeight: 'bold' 
+  maintenanceLeft: {
+    flex: 1,
   },
-  logoutBtn: { 
-    backgroundColor: '#6B7280', 
-    padding: 14, 
-    borderRadius: 12, 
-    alignItems: 'center', 
-    marginTop: 20 
+  maintenanceTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 4,
   },
-  logoutText: { 
-    color: 'white', 
-    fontWeight: 'bold', 
-    fontSize: 16 
+  maintenanceStatus: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
-  machineTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333'
-  },
-  reasonItem: { 
-    backgroundColor: 'white', 
-    padding: 20, 
-    marginBottom: 12, 
+  completeBtn: {
+    backgroundColor: '#10b981',
+    padding: 12,
     borderRadius: 12,
-    elevation: 2
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  eventsSection: {
+    margin: 24,
+    backgroundColor: 'white',
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.2,
+    shadowRadius: 40,
+    elevation: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  eventCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  eventIcon: {
+    fontSize: 28,
+    marginRight: 16,
+    width: 32,
+  },
+  eventContent: {
+    flex: 1,
+  },
+  eventType: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#ef4444',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  eventDesc: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  eventTime: {
+    fontSize: 15,
+    color: '#64748b',
+    fontWeight: '600',
+  },
+  ackBtn: {
+    backgroundColor: '#10b981',
+    padding: 12,
+    borderRadius: 12,
+  },
+  reasonHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 24,
+    paddingTop: 60,
+    backgroundColor: 'white',
+  },
+  backBtn: {
+    padding: 8,
+  },
+  machineNameHeader: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#1e293b',
+    flex: 1,
+    textAlign: 'center',
+  },
+  reasonTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1e293b',
+    textAlign: 'center',
+    margin: 24,
+    marginBottom: 16,
+  },
+  reasonList: {
+    paddingBottom: 100,
+  },
+  reasonCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    marginHorizontal: 24,
+    marginBottom: 16,
+    padding: 24,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  reasonIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#f1f5f9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
   },
   reasonIcon: {
     fontSize: 24,
-    marginRight: 16,
-    width: 24
   },
-  reasonText: { 
-    fontSize: 16, 
-    fontWeight: '500',
-    flex: 1
+  reasonLabel: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1e293b',
   },
-  cancelBtn: { 
-    backgroundColor: '#EF4444', 
-    padding: 16, 
-    borderRadius: 12, 
-    alignItems: 'center', 
-    marginTop: 20 
+  logoutBtn: {
+    position: 'absolute',
+    bottom: 40,
+    left: 24,
+    right: 24,
+    backgroundColor: '#475569',
+    flexDirection: 'row',
+    padding: 18,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
   },
-  cancelText: { 
-    color: 'white', 
-    fontWeight: 'bold', 
-    fontSize: 16 
+  logoutText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '800',
+    marginLeft: 12,
   },
 });
