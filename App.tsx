@@ -155,7 +155,7 @@ export default function App() {
           <View style={styles.factoryIconContainer}>
             <Ionicons name="build-outline" size={72} color="white" />
           </View>
-          <Text style={styles.appTitle}>DOWNTIMETRACKER</Text>
+          <Text style={styles.appTitle}>Downtime Tracker</Text>
           <Text style={styles.appSubtitle}>Real-time Downtime & Alert Management</Text>
         </View>
         <View style={styles.loginCard}>
@@ -187,7 +187,7 @@ export default function App() {
             <Text style={styles.loginBtnText}>ENTER SYSTEM</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.tenantId}>tenant_id: tenant-123</Text>
+        <Text style={styles.tenantId}></Text>
       </View>
     );
   }
