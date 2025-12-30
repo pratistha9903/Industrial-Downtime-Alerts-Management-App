@@ -36,7 +36,7 @@ npm install
 3. Start development server
 npx expo start --clear
 
-text
+
 **📱 Scan QR code with Expo Go app → App loads instantly**
 
 ---
@@ -48,10 +48,6 @@ eas login # Login (one-time)
 eas build --platform android --profile preview
 
 📥 Download APK: expo.dev dashboard → Builds tab
-text
-
-### **OTA Updates (Instant)**
-eas update --branch preview --message "v1.0.1 - Fixed sync"
 
 ⚡ Live immediately via Expo Go link above
 text
@@ -79,7 +75,6 @@ text
 ↓ Survives Airplane + App Kill
 👨‍💼 Supervisor Syncs → ✅ Badge Clears + Visual Feedback
 
-text
 
 **Key Design:**
 - **Idempotent**: `${Date.now()}-${Math.random()}` IDs prevent duplicates
@@ -111,7 +106,7 @@ text
 [1:10] 👆 Acknowledge alerts → Status updates
 [1:25] "✨ Production-ready MVP complete"
 
-text
+
 
 ---
 
@@ -122,19 +117,6 @@ text
 ❌ "No camera" → Android auto-permissions
 ❌ "Sync stuck" → Switch to Supervisor role
 
-text
-
----
-
-## 📈 Evaluation Criteria (95/100 Projected)
-
-| **Criteria** | **Score** | **Proof** |
-|--------------|-----------|-----------|
-| Offline Reliability | 25/25 | Video shows airplane + restart |
-| Sync Design | 18/20 | Idempotent queue working |
-| Mobile UX | 20/20 | Native shadows + badges |
-| State Mgmt | 10/10 | Zero-boilerplate |
-| Build/Release | 10/10 | EAS Update live ✅ |
 
 ---
 
@@ -149,7 +131,6 @@ text
 MIT License © 2025 Pratistha9903
 Built for: Cross-Platform Mobile Challenge (Intern)
 
-text
 
 ---
 
@@ -162,10 +143,4 @@ Replace this line in the README:
 text
 [![📱 Watch Demo Video]
 https://drive.google.com/drive/folders/1hVt3TiicmlP8bPSU8dFWDrx8x3BtoKHS?usp=sharing
-With your actual Google Drive video file ID:
 
-Right-click your video → "Get link"
-
-Copy file ID from:[ https://drive.google.com/file/d/FILE_ID/view](https://drive.google.com/drive/folders/1hVt3TiicmlP8bPSU8dFWDrx8x3BtoKHS?usp=sharing)
-
-Replace YOUR_FILE_ID above
