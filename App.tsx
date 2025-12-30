@@ -24,11 +24,6 @@ const maintenanceItems = [
   { id: 'm4', machineId: 'M-103', title: 'Inspect packing sensors', status: 'due' },
 ];
 
-const alerts = [
-  { id: 'a1', machineId: 'M-101', msg: 'Idle > 30 min on Cutter 1', severity: 'high', status: 'created' },
-  { id: 'a2', machineId: 'M-102', msg: 'Low pressure on Roller A', severity: 'medium', status: 'acknowledged' },
-];
-
 export default function App() {
   const [screen, setScreen] = useState('login');
   const [email, setEmail] = useState('');
@@ -37,6 +32,7 @@ export default function App() {
   const [pendingCount, setPendingCount] = useState(0);
   const [showReasons, setShowReasons] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [operatorEvents, setOperatorEvents] = useState([]); // NEW: Operator actions
   const [ackedAlerts, setAckedAlerts] = useState([]);
 
   // Load persisted data
@@ -45,13 +41,31 @@ export default function App() {
   }, []);
 
   const loadPersistedData = async () => {
-    const count = await AsyncStorage.getItem('pendingCount');
-    if (count) setPendingCount(parseInt(count));
+    try {
+      const count = await AsyncStorage.getItem('pendingCount');
+      if (count) setPendingCount(parseInt(count));
+      
+      // Load operator events
+      const events = await AsyncStorage.getItem('operatorEvents');
+      if (events) setOperatorEvents(JSON.parse(events));
+    } catch (error) {
+      console.log('Load error');
+    }
   };
 
   const savePendingCount = async (count) => {
-    setPendingCount(count);
-    await AsyncStorage.setItem('pendingCount', count.toString());
+    try {
+      setPendingCount(count);
+      await AsyncStorage.setItem('pendingCount', count.toString());
+    } catch (error) {
+      console.log('Save error');
+    }
+  };
+
+  const saveOperatorEvent = async (event) => {
+    const events = [...operatorEvents, event];
+    setOperatorEvents(events);
+    await AsyncStorage.setItem('operatorEvents', JSON.stringify(events));
   };
 
   const login = () => {
@@ -67,6 +81,16 @@ export default function App() {
   const selectReason = async (reason) => {
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
+    
+    // ADD OPERATOR EVENT
+    await saveOperatorEvent({
+      id: Date.now().toString(),
+      type: 'downtime',
+      reason: reason.label,
+      machine: selectedMachine?.name,
+      time: new Date().toLocaleTimeString()
+    });
+    
     setShowReasons(false);
     Alert.alert('✅ Downtime Started', `${reason.label} on ${selectedMachine?.name}`);
   };
@@ -74,19 +98,34 @@ export default function App() {
   const completeMaintenance = async (item) => {
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
+    
+    // ADD OPERATOR EVENT
+    await saveOperatorEvent({
+      id: Date.now().toString(),
+      type: 'maintenance',
+      task: item.title,
+      machine: maintenanceItems.find(m => m.id === item.id)?.machineId || 'Unknown',
+      time: new Date().toLocaleTimeString()
+    });
+    
     Alert.alert('✅ Complete!', `${item.title} marked done`);
   };
 
-  const acknowledgeAlert = (alert) => {
-    setAckedAlerts([...ackedAlerts, alert.id]);
-    Alert.alert('✅ Acknowledged', `${alert.msg}`);
+  const acknowledgeEvent = (event) => {
+    setOperatorEvents(operatorEvents.filter(e => e.id !== event.id));
+    Alert.alert('✅ Seen', `Operator action acknowledged`);
   };
 
   const syncData = async () => {
-    setPendingCount(0);
-    await AsyncStorage.removeItem('pendingCount');
-    Alert.alert('🔄 Synced!', 'All data uploaded successfully!');
-    setIsOnline(true);
+    try {
+      setPendingCount(0);
+      setOperatorEvents([]); // Clear events after sync
+      await AsyncStorage.multiRemove(['pendingCount', 'operatorEvents']);
+      Alert.alert('🔄 Synced!', 'All data uploaded successfully!');
+      setIsOnline(true);
+    } catch (error) {
+      Alert.alert('Sync Error', 'Check connection');
+    }
   };
 
   if (screen === 'login') {
@@ -170,7 +209,6 @@ export default function App() {
         data={MACHINES}
         renderItem={({ item }) => (
           <View style={styles.machineContainer}>
-            {/* Machine Card */}
             <TouchableOpacity style={styles.machineCard} onPress={() => startDowntime(item)}>
               <Text style={styles.machineName}>{item.name}</Text>
               <Text style={styles.machineType}>{item.type.toUpperCase()}</Text>
@@ -179,7 +217,6 @@ export default function App() {
               </View>
             </TouchableOpacity>
 
-            {/* Maintenance Items */}
             {maintenanceItems.filter(m => m.machineId === item.id).map(mItem => (
               <View key={mItem.id} style={[
                 styles.maintenanceItem, 
@@ -205,28 +242,23 @@ export default function App() {
         keyExtractor={(item) => item.id}
       />
 
-      {/* Supervisor Alerts */}
-      {role === 'supervisor' && (
+      {/* Supervisor Sees Operator Events */}
+      {role === 'supervisor' && operatorEvents.length > 0 && (
         <View style={styles.alertsSection}>
-          <Text style={styles.sectionTitle}>Alerts ({alerts.length - ackedAlerts.length})</Text>
-          {alerts.map(alert => (
-            <View key={alert.id} style={[
-              styles.alertCard,
-              ackedAlerts.includes(alert.id) && styles.ackedAlert
-            ]}>
-              <View style={[styles.severityChip, { backgroundColor: getSeverityColor(alert.severity) }]}>
-                <Text style={styles.severityText}>{alert.severity.toUpperCase()}</Text>
-              </View>
-              <Text style={styles.alertMsg}>{alert.msg}</Text>
-              <Text style={styles.alertStatus}>{alert.status.toUpperCase()}</Text>
-              {alert.status === 'created' && !ackedAlerts.includes(alert.id) && (
-                <TouchableOpacity 
-                  style={styles.ackBtn}
-                  onPress={() => acknowledgeAlert(alert)}
-                >
-                  <Text style={styles.ackText}>✅ Acknowledge</Text>
-                </TouchableOpacity>
-              )}
+          <Text style={styles.sectionTitle}>Operator Events ({operatorEvents.length})</Text>
+          {operatorEvents.map((event) => (
+            <View key={event.id} style={styles.alertCard}>
+              <Text style={styles.alertMsg}>
+                {event.type === 'downtime' ? '🔴 Downtime' : '🔧 Maintenance'}: 
+                {event.reason || event.task} 
+                ({event.machine} - {event.time})
+              </Text>
+              <TouchableOpacity 
+                style={styles.ackBtn}
+                onPress={() => acknowledgeEvent(event)}
+              >
+                <Text style={styles.ackText}>✅ Seen</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </View>
@@ -245,14 +277,6 @@ const getStatusColor = (status) => {
     case 'RUN': return '#10B981';
     case 'IDLE': return '#F59E0B';
     default: return '#EF4444';
-  }
-};
-
-const getSeverityColor = (severity) => {
-  switch (severity) {
-    case 'high': return '#EF4444';
-    case 'medium': return '#F59E0B';
-    default: return '#10B981';
   }
 };
 
@@ -391,8 +415,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16, 
     paddingVertical: 8, 
     borderRadius: 20, 
-    alignSelf: 'flex-start',
-    maxWidth: '70%'
+    alignSelf: 'flex-start'
   },
   statusText: { 
     color: 'white', 
@@ -405,7 +428,8 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     flexDirection: 'row', 
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginTop: 8
   },
   overdue: { 
     borderLeftWidth: 5, 
@@ -458,29 +482,9 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     marginBottom: 12 
   },
-  ackedAlert: {
-    backgroundColor: '#F0FDF4'
-  },
-  severityChip: { 
-    paddingHorizontal: 12, 
-    paddingVertical: 6, 
-    borderRadius: 20, 
-    alignSelf: 'flex-start',
-    marginBottom: 8
-  },
-  severityText: { 
-    color: 'white', 
-    fontSize: 12, 
-    fontWeight: 'bold' 
-  },
   alertMsg: { 
     fontSize: 16, 
     fontWeight: '500', 
-    marginBottom: 8 
-  },
-  alertStatus: { 
-    fontSize: 14, 
-    color: '#666', 
     marginBottom: 12 
   },
   ackBtn: { 
@@ -504,6 +508,13 @@ const styles = StyleSheet.create({
     color: 'white', 
     fontWeight: 'bold', 
     fontSize: 16 
+  },
+  machineTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333'
   },
   reasonItem: { 
     backgroundColor: 'white', 
