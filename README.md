@@ -4,7 +4,7 @@
 **Expo Go**: `exp://expo-development-client/?url=https://u.expo.dev/ce79cd3d-031f-4651-9dca-e3559e6dfd3c/group/a158e475-c381-4a1b-b367-725f375c9dcf`  
 **GitHub**: [pratistha9903/Industrial-Downtime-Alerts-Management-App](https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App)
 
-Production-ready offline-first field app for shop floor operators & supervisors.
+Production-ready offline-first field app for machine operators & supervisors.
 
 ## How to Run
 
