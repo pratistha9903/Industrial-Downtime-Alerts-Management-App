@@ -100,7 +100,6 @@ export default function App() {
     Alert.alert('🔴 Downtime Reported', `${reason.label}`);
   };
 
-  // ✅ FIXED: Maintenance COMPLETE - NO FORCE RUNNING
   const completeMaintenance = async (item) => {
     const newCount = pendingCount + 1;
     await savePendingCount(newCount);
@@ -118,7 +117,6 @@ export default function App() {
       icon: '🔧'
     });
     
-    // ✅ AND LOGIC: Only show warning if machine has downtime
     if (machine?.status !== 'OFF') {
       Alert.alert('✅ Maintenance Complete!', `${item.title} done on ${machine?.name}`);
     } else {
@@ -127,7 +125,6 @@ export default function App() {
         [{ text: 'OK' }]
       );
     }
-    // NO updateMachineStatus() - Machine stays in current state PERFECT!
   };
 
   const acknowledgeEvent = (event) => {
@@ -152,9 +149,8 @@ export default function App() {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#1e3a8a" />
         <View style={styles.gradientHeader}>
-          {/* ✅ ICON CHANGED: factory-outline 🏭 */}
           <View style={styles.factoryIconContainer}>
-            <Ionicons name="construct-outline" size={72} color="white" />
+            <Text style={styles.factoryEmoji}>🏭</Text>
           </View>
           <Text style={styles.appTitle}>Downtime Tracker</Text>
           <Text style={styles.appSubtitle}>Real-time Downtime & Alert Management</Text>
@@ -167,24 +163,26 @@ export default function App() {
             onChangeText={setEmail}
             autoCapitalize="none"
           />
+          {/* ✅ FIXED: Clean role buttons - smaller & professional */}
           <View style={styles.roleToggle}>
             <TouchableOpacity 
               style={[styles.roleBtn, role === 'operator' && styles.roleBtnActive]}
               onPress={() => setRole('operator')}
             >
-              <Ionicons name="construct-outline" size={28} color={role === 'operator' ? 'white' : '#64748b'} />
+              <Ionicons name="construct-outline" size={20} color={role === 'operator' ? 'white' : '#64748b'} />
               <Text style={[styles.roleText, role === 'operator' && styles.roleTextActive]}>Operator</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.roleBtn, role === 'supervisor' && styles.roleBtnActive]}
               onPress={() => setRole('supervisor')}
             >
-              <Ionicons name="shield-checkmark-outline" size={28} color={role === 'supervisor' ? 'white' : '#64748b'} />
+              <Ionicons name="shield-checkmark-outline" size={20} color={role === 'supervisor' ? 'white' : '#64748b'} />
               <Text style={[styles.roleText, role === 'supervisor' && styles.roleTextActive]}>Supervisor</Text>
             </TouchableOpacity>
           </View>
+          {/* ✅ FIXED: Smaller login button */}
           <TouchableOpacity style={styles.loginBtn} onPress={login}>
-            <Ionicons name="enter-outline" size={24} color="white" />
+            <Ionicons name="enter-outline" size={20} color="white" />
             <Text style={styles.loginBtnText}>ENTER SYSTEM</Text>
           </TouchableOpacity>
         </View>
@@ -199,7 +197,7 @@ export default function App() {
         <StatusBar barStyle="dark-content" />
         <View style={styles.reasonHeader}>
           <TouchableOpacity onPress={() => setShowReasons(false)} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#1e293b" />
+            <Ionicons name="arrow-back" size={20} color="#1e293b" />
           </TouchableOpacity>
           <Text style={styles.machineNameHeader}>{selectedMachine?.name}</Text>
         </View>
@@ -213,7 +211,7 @@ export default function App() {
                 <Text style={styles.reasonIcon}>{item.icon}</Text>
               </View>
               <Text style={styles.reasonLabel}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={24} color="#cbd5e1" />
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
             </TouchableOpacity>
           )}
           keyExtractor={(item) => item.code}
@@ -228,7 +226,7 @@ export default function App() {
       
       <View style={styles.dashboardHeader}>
         <View style={styles.headerLeft}>
-          <Ionicons name={role === 'operator' ? "construct-outline" : "shield-checkmark-outline"} size={32} color="#1e293b" />
+          <Ionicons name={role === 'operator' ? "construct-outline" : "shield-checkmark-outline"} size={24} color="#1e293b" />
           <View>
             <Text style={styles.roleTitle}>{role.toUpperCase()}</Text>
             <Text style={styles.roleSubtitle}>Dashboard</Text>
@@ -249,7 +247,7 @@ export default function App() {
               onPress={syncData}
               disabled={pendingCount === 0}
             >
-              <Ionicons name="sync-outline" size={20} color={pendingCount === 0 ? '#9ca3af' : 'white'} />
+              <Ionicons name="sync-outline" size={16} color={pendingCount === 0 ? '#9ca3af' : 'white'} />
             </TouchableOpacity>
           )}
         </View>
@@ -276,7 +274,7 @@ export default function App() {
                   <Text style={styles.statusBadgeText}>{item.status}</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#cbd5e1" />
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
             </TouchableOpacity>
 
             {maintenanceItems.filter(m => m.machineId === item.id).map(mItem => (
@@ -291,7 +289,7 @@ export default function App() {
                 </View>
                 {mItem.status !== 'done' && (
                   <TouchableOpacity style={styles.completeBtn} onPress={() => completeMaintenance(mItem)}>
-                    <Ionicons name="checkmark-circle-outline" size={20} color="white" />
+                    <Ionicons name="checkmark-circle-outline" size={16} color="white" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -305,7 +303,7 @@ export default function App() {
       {role === 'supervisor' && operatorEvents.length > 0 && (
         <View style={styles.eventsSection}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="notifications-outline" size={24} color="#ef4444" />
+            <Ionicons name="notifications-outline" size={20} color="#ef4444" />
             <Text style={styles.eventsSectionTitle}>OPERATOR EVENTS ({operatorEvents.length})</Text>
           </View>
           <FlatList
@@ -319,7 +317,7 @@ export default function App() {
                   <Text style={styles.eventTime}>{item.machine} • {item.time}</Text>
                 </View>
                 <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
-                  <Ionicons name="checkmark-outline" size={20} color="white" />
+                  <Ionicons name="checkmark-outline" size={16} color="white" />
                 </TouchableOpacity>
               </View>
             )}
@@ -330,7 +328,7 @@ export default function App() {
       )}
 
       <TouchableOpacity style={styles.logoutBtn} onPress={() => setScreen('login')}>
-        <Ionicons name="log-out-outline" size={20} color="white" />
+        <Ionicons name="log-out-outline" size={16} color="white" />
         <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
     </View>
@@ -365,59 +363,64 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   factoryIconContainer: {
-    width: 90,
-    height: 90,
-    borderRadius: 24,
+    width: 80,
+    height: 80,
+    borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
+  },
+  factoryEmoji: {
+    fontSize: 64,
+    lineHeight: 64,
   },
   appTitle: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: '900',
     color: 'white',
-    letterSpacing: 2,
+    letterSpacing: 1.5,
   },
   appSubtitle: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#bfdbfe',
-    marginTop: 8,
+    marginTop: 6,
     fontWeight: '500'
   },
   loginCard: {
     backgroundColor: 'white',
-    margin: 24,
-    padding: 32,
-    borderRadius: 24,
+    margin: 20,
+    padding: 24,
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.3,
-    shadowRadius: 40,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    elevation: 12,
   },
   input: {
     borderWidth: 2,
     borderColor: '#e2e8f0',
-    padding: 20,
-    borderRadius: 16,
+    padding: 16,
+    borderRadius: 12,
     backgroundColor: '#f8fafc',
-    fontSize: 18,
-    marginBottom: 24,
+    fontSize: 16,
+    marginBottom: 20,
     fontWeight: '500'
   },
+  // ✅ FIXED: Smaller, cleaner role buttons
   roleToggle: {
     flexDirection: 'row',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   roleBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    marginHorizontal: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginHorizontal: 6,
     backgroundColor: '#f1f5f9',
     borderWidth: 2,
     borderColor: '#e2e8f0'
@@ -426,45 +429,47 @@ const styles = StyleSheet.create({
     backgroundColor: '#10b981',
     borderColor: '#10b981',
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowRadius: 12,
+    elevation: 8,
   },
   roleText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    marginLeft: 16,
+    marginLeft: 12,
     color: '#64748b'
   },
   roleTextActive: {
     color: 'white'
   },
+  // ✅ FIXED: Smaller login button
   loginBtn: {
     flexDirection: 'row',
     backgroundColor: '#1e3a8a',
-    padding: 20,
-    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#1e3a8a',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 15,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
   },
   loginBtnText: {
     color: 'white',
-    fontSize: 20,
-    fontWeight: '800',
-    marginLeft: 12,
-    letterSpacing: 1
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 8,
+    letterSpacing: 0.5
   },
   tenantId: {
     textAlign: 'center',
     color: '#94a3b8',
     fontSize: 12,
-    marginTop: 24,
+    marginTop: 20,
     fontWeight: '500'
   },
   dashboardHeader: {
@@ -472,30 +477,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'white',
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
-    elevation: 8,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowRadius: 8,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   roleTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
     color: '#1e293b',
-    marginLeft: 16,
+    marginLeft: 12,
   },
   roleSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#64748b',
-    marginLeft: 16,
+    marginLeft: 12,
     fontWeight: '600'
   },
   headerRight: {
@@ -504,137 +509,137 @@ const styles = StyleSheet.create({
   },
   pendingBadge: {
     backgroundColor: '#ef4444',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   pendingText: {
     color: 'white',
     fontWeight: '800',
-    fontSize: 14,
+    fontSize: 12,
   },
   onlineStatus: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
-    marginRight: 16,
+    marginRight: 12,
     textTransform: 'uppercase',
   },
   syncBtnHeader: {
     backgroundColor: '#10b981',
-    padding: 12,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 10,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowRadius: 6,
+    elevation: 6,
   },
   syncBtnDisabled: {
     backgroundColor: '#9ca3af'
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: 'white',
     textAlign: 'center',
-    margin: 24,
-    marginBottom: 16,
-    letterSpacing: 1,
+    margin: 20,
+    marginBottom: 12,
+    letterSpacing: 0.5,
   },
   eventsSectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
     color: '#1e293b',
-    marginLeft: 12,
+    marginLeft: 10,
   },
   machineList: {
-    paddingBottom: 120,
+    paddingBottom: 100,
   },
   machineCardContainer: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
   },
   machineCard: {
     backgroundColor: 'white',
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    padding: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.15,
-    shadowRadius: 40,
-    elevation: 15,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   machineCardRunning: {
-    borderLeftWidth: 6,
+    borderLeftWidth: 5,
     borderLeftColor: '#10b981',
   },
   machineCardIdle: {
-    borderLeftWidth: 6,
+    borderLeftWidth: 5,
     borderLeftColor: '#f59e0b',
   },
   machineCardOff: {
-    borderLeftWidth: 6,
+    borderLeftWidth: 5,
     borderLeftColor: '#ef4444',
   },
   machineHeader: {
     flex: 1,
   },
   machineInfo: {
-    marginBottom: 8,
+    marginBottom: 6,
   },
   machineName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '800',
     color: '#1e293b',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   machineType: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#64748b',
     fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   statusBadge: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
     alignSelf: 'flex-start',
-    minWidth: 80,
+    minWidth: 70,
     alignItems: 'center',
   },
   statusBadgeText: {
     color: 'white',
     fontWeight: '800',
-    fontSize: 14,
+    fontSize: 12,
     textTransform: 'uppercase',
   },
   maintenanceCard: {
     backgroundColor: 'rgba(255,255,255,0.9)',
-    marginTop: 12,
-    padding: 20,
-    borderRadius: 16,
+    marginTop: 10,
+    padding: 16,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowRadius: 12,
+    elevation: 4,
   },
   maintenanceOverdue: {
-    borderLeftWidth: 5,
+    borderLeftWidth: 4,
     borderLeftColor: '#ef4444',
   },
   maintenanceDone: {
-    borderLeftWidth: 5,
+    borderLeftWidth: 4,
     borderLeftColor: '#10b981',
     opacity: 0.7,
   },
@@ -642,161 +647,162 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   maintenanceTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#1e293b',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   maintenanceStatus: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#64748b',
     fontWeight: '700',
     textTransform: 'uppercase',
   },
   completeBtn: {
     backgroundColor: '#10b981',
-    padding: 12,
-    borderRadius: 12,
-    minWidth: 60,
+    padding: 10,
+    borderRadius: 10,
+    minWidth: 48,
     alignItems: 'center',
   },
   eventsSection: {
-    margin: 24,
+    margin: 20,
     backgroundColor: 'white',
-    borderRadius: 24,
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.2,
-    shadowRadius: 40,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
   },
   eventCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
   eventIcon: {
-    fontSize: 28,
-    marginRight: 16,
-    width: 32,
+    fontSize: 24,
+    marginRight: 12,
+    width: 28,
   },
   eventContent: {
     flex: 1,
   },
   eventType: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '800',
     color: '#ef4444',
-    marginBottom: 4,
+    marginBottom: 2,
     textTransform: 'uppercase',
   },
   eventDesc: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#1e293b',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   eventTime: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#64748b',
     fontWeight: '600',
   },
   ackBtn: {
     backgroundColor: '#10b981',
-    padding: 12,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 10,
   },
   reasonHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 24,
+    padding: 20,
     paddingTop: 60,
     backgroundColor: 'white',
   },
   backBtn: {
-    padding: 8,
+    padding: 6,
   },
   machineNameHeader: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '900',
     color: '#1e293b',
     flex: 1,
     textAlign: 'center',
   },
   reasonTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: '#1e293b',
     textAlign: 'center',
-    margin: 24,
-    marginBottom: 16,
+    margin: 20,
+    marginBottom: 12,
   },
   reasonList: {
-    paddingBottom: 100,
+    paddingBottom: 80,
   },
   reasonCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
-    marginHorizontal: 24,
-    marginBottom: 16,
-    padding: 24,
-    borderRadius: 20,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    padding: 20,
+    borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowRadius: 12,
+    elevation: 6,
   },
   reasonIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 14,
   },
   reasonIcon: {
-    fontSize: 24,
+    fontSize: 22,
   },
   reasonLabel: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#1e293b',
   },
   logoutBtn: {
     position: 'absolute',
-    bottom: 40,
-    left: 24,
-    right: 24,
+    bottom: 30,
+    left: 20,
+    right: 20,
     backgroundColor: '#475569',
     flexDirection: 'row',
-    padding: 18,
-    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 15,
+    shadowRadius: 12,
+    elevation: 10,
   },
   logoutText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: '800',
-    marginLeft: 12,
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 8,
   },
 });
