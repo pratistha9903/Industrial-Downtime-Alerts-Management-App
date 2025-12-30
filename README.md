@@ -21,12 +21,7 @@
 ---
 ## 🎥 90-Second Demo Video
 
-
-
-
-
-
-
+https://drive.google.com/drive/folders/1hVt3TiicmlP8bPSU8dFWDrx8x3BtoKHS?usp=sharing
 
 ---
 ## 🚀 Get Started in 90 Seconds
