@@ -152,8 +152,9 @@ export default function App() {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#1e3a8a" />
         <View style={styles.gradientHeader}>
+          {/* ✅ ICON CHANGED: factory-outline 🏭 */}
           <View style={styles.factoryIconContainer}>
-            <Ionicons name="build-outline" size={72} color="white" />
+            <Ionicons name="construct-outline" size={72} color="white" />
           </View>
           <Text style={styles.appTitle}>Downtime Tracker</Text>
           <Text style={styles.appSubtitle}>Real-time Downtime & Alert Management</Text>
