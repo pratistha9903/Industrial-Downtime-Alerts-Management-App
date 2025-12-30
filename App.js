@@ -460,7 +460,7 @@ export default function App() {
             <Text style={styles.factoryEmoji}>🏭</Text>
           </View>
           <Text style={styles.appTitle}>Downtime Tracker</Text>
-          <Text style={styles.appSubtitle}>Offline-First Field App</Text>
+          <Text style={styles.appSubtitle}>Industrial Downtime Alerts Management App</Text>
           <Text style={styles.tenantId}>Tenant: {TENANT_ID}</Text>
         </View>
         <View style={styles.loginCard}>
