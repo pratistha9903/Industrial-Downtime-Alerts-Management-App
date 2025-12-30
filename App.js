@@ -106,16 +106,6 @@ export default function App() {
     initializeApp();
   }, []);
 
-  // ✅ FIXED: Single auto-sync useEffect
-  useEffect(() => {
-    if (role === 'supervisor' && isOnline && pendingQueue.length > 0 && !syncing) {
-      const syncTimeout = setTimeout(() => {
-        attemptSync();
-      }, 1000);
-      return () => clearTimeout(syncTimeout);
-    }
-  }, [isOnline, pendingQueue.length, role, syncing]);
-
   const saveAllData = async () => {
     try {
       await AsyncStorage.setItem('jwt', jwt);
@@ -189,7 +179,6 @@ export default function App() {
     const newQueue = [...pendingQueue, event];
     setPendingQueue(newQueue);
 
-    // ✅ FIXED: Supervisor event with full states
     const supervisorEvent = {
       id: event.id,
       type: 'DOWNTIME',
@@ -271,7 +260,6 @@ export default function App() {
     }
   };
 
-  // ✅ FIXED: acknowledgeEvent
   const acknowledgeEvent = (event) => {
     setOperatorEvents(prev => {
       const updated = prev.map(e => 
@@ -291,7 +279,6 @@ export default function App() {
     Alert.alert('✅', `Event acknowledged by ${email}`);
   };
 
-  // ✅ FIXED: getTopReason
   const getTopReason = (machineId) => {
     const machineEvents = pendingQueue.filter(e => e.machine_id === machineId && e.type === 'downtime');
     if (machineEvents.length === 0) return 'None';
@@ -366,7 +353,6 @@ export default function App() {
     </View>
   );
 
-  // ✅ FIXED: renderOperatorEvent
   const renderOperatorEvent = ({ item }) => (
     <View style={[
       styles.eventCard, 
@@ -550,6 +536,9 @@ export default function App() {
                 size={16} 
                 color={(pendingCount === 0 || !isOnline) ? '#9ca3af' : 'white'} 
               />
+              {pendingCount > 0 && (
+                <Text style={styles.syncBadge}>{pendingCount}</Text>
+              )}
             </TouchableOpacity>
           )}
         </View>
@@ -636,78 +625,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3, shadowRadius: 12, elevation: 10,
   },
   loginBtnText: { color: 'white', fontSize: 16, fontWeight: '700', marginLeft: 8, letterSpacing: 0.5 },
-  dashboardHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: 'white', paddingHorizontal: 20, paddingVertical: 16,
-    borderBottomWidth: 1, borderBottomColor: '#e2e8f0',
-    elevation: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.1, shadowRadius: 8,
-  },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  roleTitle: { fontSize: 18, fontWeight: '800', color: '#1e293b', marginLeft: 12 },
-  roleSubtitle: { fontSize: 13, color: '#64748b', marginLeft: 12, fontWeight: '600' },
-  headerRight: { flexDirection: 'row', alignItems: 'center' },
-  pendingBadge: {
-    backgroundColor: '#ef4444', width: 24, height: 24, borderRadius: 12,
-    alignItems: 'center', justifyContent: 'center', marginRight: 12,
-  },
-  eventAcknowledged: {opacity: 0.7,backgroundColor: '#ecfdf5'
-},
-
-
-  pendingText: { color: 'white', fontWeight: '800', fontSize: 12 },
-  onlineStatus: { fontSize: 12, fontWeight: '700', marginRight: 12, textTransform: 'uppercase' },
-  syncBtnHeader: { 
-    backgroundColor: '#10b981', padding: 10, borderRadius: 10,
-    shadowColor: '#10b981', shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.3, shadowRadius: 6, elevation: 6,
-  },
-  summaryReasons: { 
-  fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2 
-},
-  syncBtnDisabled: { backgroundColor: '#9ca3af' },
-  syncing: { backgroundColor: '#f59e0b' },
-  sectionTitle: {
-    fontSize: 20, fontWeight: '900', color: 'white', textAlign: 'center',
-    margin: 20, marginBottom: 12, letterSpacing: 0.5,
-  },
-  summaryReasons: {
-fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2
-},
-
-  factoryEmoji: { fontSize: 64, lineHeight: 64 },
-  appTitle: { fontSize: 32, fontWeight: '900', color: 'white', letterSpacing: 1.5 },
-  appSubtitle: { fontSize: 16, color: '#bfdbfe', marginTop: 6, fontWeight: '500' },
-  tenantId: { fontSize: 12, color: '#94a3b8', marginTop: 12, fontWeight: '500' },
-  loginCard: {
-    backgroundColor: 'white', margin: 20, padding: 24, borderRadius: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 16 }, shadowOpacity: 0.2,
-    shadowRadius: 24, elevation: 12,
-  },
-  input: {
-    borderWidth: 2, borderColor: '#e2e8f0', padding: 16, borderRadius: 12,
-    backgroundColor: '#f8fafc', fontSize: 16, marginBottom: 20, fontWeight: '500'
-  },
-  roleToggle: { flexDirection: 'row', marginBottom: 24 },
-  roleBtn: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', paddingVertical: 14,
-    paddingHorizontal: 16, borderRadius: 12, marginHorizontal: 6,
-    backgroundColor: '#f1f5f9', borderWidth: 2, borderColor: '#e2e8f0'
-  },
-  roleBtnActive: { 
-    backgroundColor: '#10b981', borderColor: '#10b981',
-    shadowColor: '#10b981', shadowOffset: { width: 0, height: 6 }, 
-    shadowOpacity: 0.3, shadowRadius: 12, elevation: 8,
-  },
-  roleText: { fontSize: 14, fontWeight: '700', marginLeft: 12, color: '#64748b' },
-  roleTextActive: { color: 'white' },
-  loginBtn: {
-    flexDirection: 'row', backgroundColor: '#1e3a8a', paddingVertical: 14,
-    paddingHorizontal: 20, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#1e3a8a', shadowOffset: { width: 0, height: 6 }, 
-    shadowOpacity: 0.3, shadowRadius: 12, elevation: 10,
-  },
-  loginBtnText: { color: 'white', fontSize: 16, fontWeight: '700', marginLeft: 8, letterSpacing: 0.5 },
   
   // Dashboard Header
   dashboardHeader: {
@@ -731,6 +648,12 @@ fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2
     backgroundColor: '#10b981', padding: 10, borderRadius: 10,
     shadowColor: '#10b981', shadowOffset: { width: 0, height: 2 }, 
     shadowOpacity: 0.3, shadowRadius: 6, elevation: 6,
+  },
+  syncBadge: { 
+    color: 'white', fontSize: 10, fontWeight: 'bold', 
+    position: 'absolute', top: -4, right: -4, 
+    backgroundColor: '#ef4444', borderRadius: 8, minWidth: 16, 
+    textAlign: 'center' 
   },
   syncBtnDisabled: { backgroundColor: '#9ca3af' },
   syncing: { backgroundColor: '#f59e0b' },
@@ -769,6 +692,7 @@ fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2
   },
   summaryTime: { fontSize: 12, color: '#10b981', fontWeight: '600' },
   summaryCount: { fontSize: 12, color: 'white', fontWeight: '800', marginTop: 4 },
+  summaryReasons: { fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2 },
   maintenanceCard: {
     backgroundColor: 'rgba(255,255,255,0.9)', marginTop: 10, padding: 16,
     borderRadius: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -782,35 +706,82 @@ fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2
   maintenanceStatus: { fontSize: 12, color: '#64748b', fontWeight: '700', textTransform: 'uppercase' },
   completeBtnIcon: { backgroundColor: '#10b981', padding: 10, borderRadius: 10, minWidth: 48, alignItems: 'center' },
 
-  // Alerts Section
-  alertsSection: {
-    margin: 20, backgroundColor: 'white', borderRadius: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.15,
-    shadowRadius: 24, elevation: 12,
+  // Events Section
+  eventsSection: {
+    margin: 20,
+    marginBottom: 100,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
   },
   sectionHeader: {
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16,
-    borderBottomWidth: 1, borderBottomColor: '#e2e8f0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
   },
-  eventsSectionTitle: { fontSize: 16, fontWeight: '800', color: '#1e293b', marginLeft: 10 },
-  alertCard: {
-    flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
-    borderLeftWidth: 4,
+  eventsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginLeft: 10,
   },
-  alertSeverity: { fontSize: 12, fontWeight: '800', color: '#ef4444', marginRight: 12, textTransform: 'uppercase' },
-  alertContent: { flex: 1 },
-  alertMsg: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
-  alertMeta: { fontSize: 13, color: '#64748b', marginTop: 2 },
-  alertActions: { flexDirection: 'column', justifyContent: 'center' },
-  ackBtn: { 
-    backgroundColor: '#10b981', paddingHorizontal: 12, paddingVertical: 6, 
-    borderRadius: 6, marginBottom: 4 
+  eventCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
-  ackBtnText: { color: 'white', fontSize: 11, fontWeight: '700' },
-  clearBtn: { 
-    backgroundColor: '#6b7280', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 
+  eventAcknowledged: { opacity: 0.7, backgroundColor: '#ecfdf5' },
+  eventIcon: {
+    fontSize: 24,
+    marginRight: 16,
+    width: 32,
+    textAlign: 'center',
   },
-  clearBtnText: { color: 'white', fontSize: 11, fontWeight: '700' },
+  eventContent: {
+    flex: 1,
+  },
+  eventType: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#ef4444',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  eventDesc: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  eventTime: {
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: '600',
+  },
+  ackBtn: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 44,
+    alignItems: 'center',
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
 
   // Downtime Screen
   reasonHeader: {
@@ -821,6 +792,9 @@ fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2
   networkText: { fontSize: 12, fontWeight: '700' },
   reasonTitle: { fontSize: 22, fontWeight: '800', color: 'white', textAlign: 'center', margin: 20 },
   reasonList: { paddingBottom: 20 },
+  reasonNestedList: {
+    maxHeight: 300,
+  },
   reasonCard: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: 'white',
     marginHorizontal: 20, marginBottom: 12, padding: 20, borderRadius: 16,
@@ -836,187 +810,64 @@ fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2
 
   // Photo & Notes
   photoBtn: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', padding: 16,
-    borderRadius: 12, marginHorizontal: 20, marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  photoBtnText: { marginLeft: 12, fontSize: 16, fontWeight: '600', color: '#1e293b' },
-  photoPreview: { 
-    width: '100%', height: 120, borderRadius: 12, marginHorizontal: 20, marginTop: 12,
+  photoBtnText: {
+    marginLeft: 12,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  photoPreview: {
+    width: '100%',
+    height: 120,
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginTop: 12,
     backgroundColor: '#f1f5f9',
   },
   notesInput: {
-    backgroundColor: 'white', borderRadius: 12, padding: 16, fontSize: 16,
-    textAlignVertical: 'top', minHeight: 80, marginHorizontal: 20, marginTop: 12,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    textAlignVertical: 'top',
+    minHeight: 80,
+    marginHorizontal: 20,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
-  
-  summaryReasons: { fontSize: 11, color: '#f59e0b', fontWeight: '700', marginTop: 2 },
-
   submitBtn: {
-    backgroundColor: '#ef4444', margin: 20, paddingVertical: 16, borderRadius: 16,
-    alignItems: 'center', marginTop: 24,
-    shadowColor: '#ef4444', shadowOffset: { width: 0, height: 6 }, 
-    shadowOpacity: 0.3, shadowRadius: 12, elevation: 10,
+    backgroundColor: '#ef4444',
+    margin: 20,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginTop: 24,
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
   },
-  submitBtnText: { color: 'white', fontSize: 18, fontWeight: '800', letterSpacing: 1 },
-
-  //////////////
-  alertStatusBadge: {
-  width: 32, height: 32, borderRadius: 16,
-  alignItems: 'center', justifyContent: 'center',
-  marginRight: 12,
-},
-alertStatusText: {
-  color: 'white', fontSize: 10, fontWeight: '800',
-  textTransform: 'uppercase',
-},
-alertActionBtn: {
-  minWidth: 44,  // Better touch target
-},
-eventsSection: {
-  margin: 20,
-  marginBottom: 100, // Space for logout button
-  backgroundColor: 'white',
-  borderRadius: 20,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 12 },
-  shadowOpacity: 0.15,
-  shadowRadius: 24,
-  elevation: 12,
-},
-sectionHeader: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-  paddingVertical: 16,
-  borderBottomWidth: 1,
-  borderBottomColor: '#e2e8f0',
-},
-eventsSectionTitle: {
-  fontSize: 16,
-  fontWeight: '800',
-  color: '#1e293b',
-  marginLeft: 10,
-},
-eventCard: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-  paddingVertical: 16,
-  borderBottomWidth: 1,
-  borderBottomColor: '#f1f5f9',
-},
-eventIcon: {
-  fontSize: 24,
-  marginRight: 16,
-  width: 32,
-  textAlign: 'center',
-},
-eventContent: {
-  flex: 1,
-},
-eventType: {
-  fontSize: 12,
-  fontWeight: '800',
-  color: '#ef4444',
-  textTransform: 'uppercase',
-  letterSpacing: 0.5,
-  marginBottom: 4,
-},
-eventDesc: {
-  fontSize: 16,
-  fontWeight: '700',
-  color: '#1e293b',
-  marginBottom: 4,
-},
-eventTime: {
-  fontSize: 13,
-  color: '#64748b',
-  fontWeight: '600',
-},
-ackBtn: {
-  backgroundColor: '#10b981',
-  paddingHorizontal: 12,
-  paddingVertical: 8,
-  borderRadius: 8,
-  minWidth: 44,
-  alignItems: 'center',
-  shadowColor: '#10b981',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.3,
-  shadowRadius: 4,
-  elevation: 4,
-},
-downtimeContent: {
-  paddingBottom: 100,
-  paddingHorizontal: 20,
-},
-reasonNestedList: {
-  maxHeight: 300,
-},
-networkText: {
-  fontSize: 12,
-  fontWeight: '700',
-  marginLeft: 8,
-},
-photoBtn: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: 'white',
-  padding: 16,
-  borderRadius: 12,
-  marginHorizontal: 20,
-  marginTop: 20,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 8,
-  elevation: 4,
-},
-photoBtnText: {
-  marginLeft: 12,
-  fontSize: 16,
-  fontWeight: '600',
-  color: '#1e293b',
-},
-photoPreview: {
-  width: '100%',
-  height: 120,
-  borderRadius: 12,
-  marginHorizontal: 20,
-  marginTop: 12,
-  backgroundColor: '#f1f5f9',
-},
-notesInput: {
-  backgroundColor: 'white',
-  borderRadius: 12,
-  padding: 16,
-  fontSize: 16,
-  textAlignVertical: 'top',
-  minHeight: 80,
-  marginHorizontal: 20,
-  marginTop: 12,
-  borderWidth: 1,
-  borderColor: '#e2e8f0',
-},
-submitBtn: {
-  backgroundColor: '#ef4444',
-  margin: 20,
-  paddingVertical: 16,
-  borderRadius: 16,
-  alignItems: 'center',
-  marginTop: 24,
-  shadowColor: '#ef4444',
-  shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 0.3,
-  shadowRadius: 12,
-  elevation: 10,
-},
-submitBtnText: {
-  color: 'white',
-  fontSize: 18,
-  fontWeight: '800',
-  letterSpacing: 1,
-},
+  submitBtnText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
   
   // Logout
   logoutBtn: {
