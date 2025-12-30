@@ -28,7 +28,6 @@ node --version # v18+ required
 npm --version # v9+ recommended
 npm i -g eas-cli # EAS CLI (one-time)
 
-text
 
 ### 🛠️ Clone & Launch
 1. Clone repository
@@ -42,7 +41,6 @@ npm install
 npx expo start --clear
 
 📱 Scan QR code with Expo Go app
-text
 
 **[🔴 Live Demo → Test Immediately](https://expo.dev/preview/update?message=MVP+complete&updateRuntimeVersion=1.0.0&createdAt=2025-12-30T19%3A33%3A32.746Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=a158e475-c381-4a1b-b367-725f375c9dcf)**
 
@@ -62,10 +60,10 @@ text
 
 ### 📡 Over-The-Air Updates
 Deploy instant updates (no rebuild)
+
 eas update --branch preview --message "v1.0.1 - Fixed sync"
 
 ⚡ Available immediately via Expo Go link
-text
 
 ---
 
@@ -88,12 +86,16 @@ text
 
 ### **Offline-First Data Flow** 💾
 👷 Operator → 📸 Photo + 🌳 Reason → 📦 AsyncStorage Queue
+
 ↓
+
 💾 Survives Airplane + App Kill
+
 ↓
+
 👨‍💼 Supervisor → 🔄 Manual Sync → ✅ Badge Clears
 
-text
+
 
 ### **Sync Strategy** 🔄
 Unique ID: ${Date.now()}-${Math.random()}
@@ -104,7 +106,6 @@ Conflict: Last-write-wins (timestamp)
 
 Feedback: 🔔 Badge + Sync spinner
 
-text
 
 ### **State Persistence** 🧠
 // Persisted on EVERY change
@@ -150,7 +151,6 @@ await AsyncStorage.setItem('pendingQueue', JSON.stringify(pendingQueue));
 [1:10] 👆 Acknowledge alerts → Status updates
 [1:25] "✨ Production-ready MVP"
 
-text
 
 ---
 
@@ -170,7 +170,6 @@ MIT License
 Copyright © 2025 Pratistha9903
 Built for: Cross-Platform Mobile Challenge (Intern)
 
-text
 
 ---
 
