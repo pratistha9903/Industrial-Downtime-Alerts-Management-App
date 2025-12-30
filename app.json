@@ -1,34 +1,38 @@
 {
   "expo": {
-    "name": "Downtime Tracker",
-    "slug": "Downtime Tracker",
+    "name": "ShopFloor Downtime Tracker",
+    "slug": "shopfloor-downtime-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0f172a"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0f172a"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "package": "com.pratistha9903.shopfloordowntimetracker"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-sqlite",
-      "expo-secure-store"
-    ]
+    "extra": {
+      "eas": {
+        "projectId": "ce79cd3d-031f-4651-9dca-e3559e6dfd3c"
+      }
+    }
   }
 }
+
+
