@@ -20,20 +20,25 @@
 
 ### 📋 Prerequisites (Run These)
 node --version # Must show v18+
+
 npm --version # Must show v9+
+
 npm i -g eas-cli # Install EAS CLI (one-time)
 
-text
 
 ### 🛠️ Clone, Install & Run **(3 Commands)**
 1. Clone repo
+   
 git clone https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App.git
+
 cd Industrial-Downtime-Alerts-Management-App
 
-2. Install dependencies
+3. Install dependencies
+   
 npm install
 
-3. Start development server
+5. Start development server
+   
 npx expo start --clear
 
 
@@ -44,7 +49,9 @@ npx expo start --clear
 ## 📦 Production Deployment Commands
 
 ### **Build APK (Android)**
+
 eas login # Login (one-time)
+
 eas build --platform android --profile preview
 
 📥 Download APK: expo.dev dashboard → Builds tab
