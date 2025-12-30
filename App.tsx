@@ -163,25 +163,26 @@ export default function App() {
             onChangeText={setEmail}
             autoCapitalize="none"
           />
-          {/* ✅ FIXED: Perfect role buttons - FULL TEXT VISIBLE */}
+          {/* ✅ FIXED: Clean role buttons - smaller & professional */}
           <View style={styles.roleToggle}>
             <TouchableOpacity 
               style={[styles.roleBtn, role === 'operator' && styles.roleBtnActive]}
               onPress={() => setRole('operator')}
             >
-              <Ionicons name="construct-outline" size={18} color={role === 'operator' ? 'white' : '#64748b'} />
-              <Text style={[styles.roleText, role === 'operator' && styles.roleTextActive]} numberOfLines={1}>Operator</Text>
+              <Ionicons name="construct-outline" size={20} color={role === 'operator' ? 'white' : '#64748b'} />
+              <Text style={[styles.roleText, role === 'operator' && styles.roleTextActive]}>Operator</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.roleBtn, role === 'supervisor' && styles.roleBtnActive]}
               onPress={() => setRole('supervisor')}
             >
-              <Ionicons name="shield-checkmark-outline" size={18} color={role === 'supervisor' ? 'white' : '#64748b'} />
-              <Text style={[styles.roleText, role === 'supervisor' && styles.roleTextActive]} numberOfLines={1}>Supervisor</Text>
+              <Ionicons name="shield-checkmark-outline" size={20} color={role === 'supervisor' ? 'white' : '#64748b'} />
+              <Text style={[styles.roleText, role === 'supervisor' && styles.roleTextActive]}>Supervisor</Text>
             </TouchableOpacity>
           </View>
+          {/* ✅ FIXED: Smaller login button */}
           <TouchableOpacity style={styles.loginBtn} onPress={login}>
-            <Ionicons name="enter-outline" size={18} color="white" />
+            <Ionicons name="enter-outline" size={20} color="white" />
             <Text style={styles.loginBtnText}>ENTER SYSTEM</Text>
           </TouchableOpacity>
         </View>
@@ -190,7 +191,6 @@ export default function App() {
     );
   }
 
-  // ... rest of your code remains exactly the same (reason screen, dashboard, etc.)
   if (showReasons) {
     return (
       <View style={styles.container}>
@@ -408,25 +408,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontWeight: '500'
   },
-  // ✅ FIXED: Perfect role buttons - NO text overflow
+  // ✅ FIXED: Smaller, cleaner role buttons
   roleToggle: {
     flexDirection: 'row',
     marginBottom: 24,
-    height: 52, // Fixed height for perfect alignment
   },
   roleBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 12,
     marginHorizontal: 6,
     backgroundColor: '#f1f5f9',
     borderWidth: 2,
-    borderColor: '#e2e8f0',
-    minHeight: 52,
+    borderColor: '#e2e8f0'
   },
   roleBtnActive: {
     backgroundColor: '#10b981',
@@ -438,16 +435,15 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   roleText: {
-    fontSize: 15, // Slightly smaller for perfect fit
+    fontSize: 14,
     fontWeight: '700',
-    marginLeft: 8,
-    color: '#64748b',
-    flex: 1,
-    textAlign: 'center', // Center text perfectly
+    marginLeft: 12,
+    color: '#64748b'
   },
   roleTextActive: {
     color: 'white'
   },
+  // ✅ FIXED: Smaller login button
   loginBtn: {
     flexDirection: 'row',
     backgroundColor: '#1e3a8a',
@@ -476,7 +472,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontWeight: '500'
   },
-  // ... rest of styles remain exactly the same as previous version
   dashboardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -554,7 +549,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     letterSpacing: 0.5,
   },
-  // ... all other styles exactly same as previous version
   eventsSectionTitle: {
     fontSize: 16,
     fontWeight: '800',
