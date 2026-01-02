@@ -193,6 +193,7 @@ Built for: Cross-Platform Mobile Challenge (Intern)
 
 **⚡ ONE COMMAND DEMO:** `npx expo start --clear` → 📱 Scan QR → ✅ Offline flow works!
 
-[![📱 Watch Demo Video]
+📱 Watch Demo Video
+
 https://drive.google.com/drive/folders/1hVt3TiicmlP8bPSU8dFWDrx8x3BtoKHS?usp=sharing
 
