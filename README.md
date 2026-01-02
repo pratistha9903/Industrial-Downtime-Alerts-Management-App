@@ -192,10 +192,7 @@ Built for: Cross-Platform Mobile Challenge (Intern)
 **🎯 [LIVE DEMO → Test Now](https://expo.dev/preview/update?message=MVP+complete&updateRuntimeVersion=1.0.0&createdAt=2025-12-30T19%3A33%3A32.746Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=a158e475-c381-4a1b-b367-725f375c9dcf)**
 
 **⚡ ONE COMMAND DEMO:** `npx expo start --clear` → 📱 Scan QR → ✅ Offline flow works!
-🎬 VIDEO FIX FOR GOOGLE DRIVE:
-Replace this line in the README:
 
-text
 [![📱 Watch Demo Video]
 https://drive.google.com/drive/folders/1hVt3TiicmlP8bPSU8dFWDrx8x3BtoKHS?usp=sharing
 
