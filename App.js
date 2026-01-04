@@ -12,6 +12,7 @@ import {
   StatusBar,
   Dimensions,
   Image,
+  Modal, 
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -96,6 +97,7 @@ export default function App() {
   const [operatorEvents, setOperatorEvents] = useState([]);
   const [syncing, setSyncing] = useState(false);
   const [badgeCount, setBadgeCount] = useState(0);//
+  const [modalPhoto, setModalPhoto] = useState(null);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -170,20 +172,25 @@ export default function App() {
   };
 
   const takePhoto = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: false,
-      quality: 0.3,
-      base64: true, 
-    });
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: false,
+    quality: 0.3,
+    base64: true, 
+  });
 
-    if (!result.canceled && result.assets?.[0]) {
-      const asset = result.assets[0];
-      setPhotoUri(assets.uri);
-      setPhotoBase64(asset.base64 || null);
-    }
-  };
+  if (!result.canceled && result.assets?.[0]) {
+    const asset = result.assets[0];
+    console.log('📸 Photo captured:', asset.uri);  // DEBUG
+    setPhotoUri(asset.uri);                        // ✅ Fix typo
+    setPhotoBase64(asset.base64 || null);
+  }
+};
+
 
   const handleDowntimeSubmit = async (reason) => {
+  // ✅ FIX 1: Use correct photo variables
+  const capturedPhoto = photoUri ? { uri: photoUri, base64: photoBase64 } : null;
+  
   const event = {
     id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     tenant_id: TENANT_ID,
@@ -191,18 +198,10 @@ export default function App() {
     machine_id: selectedMachine.id,
     machine_name: selectedMachine.name,
     reason_code: selectedReason?.code || reason.code,
-    reason_label: selectedReason?.label || reason.label,
+    reason_label: reason.label,  // ✅ FINAL REASON
     notes,
     photo_uri: photoUri,
-    
-    // ✅ CORRECT SYNTAX:
-    photo_base64: photoUri ? await (async () => {
-      console.log('🔄 Converting photo:', photoUri);
-      const base64 = await fileToBase64(photoUri);
-      console.log('✅ Base64 result:', base64 ? 'SUCCESS (' + base64.substring(0, 50) + '...)' : 'FAILED');
-      return base64;
-    })() : null,
-    
+    photo_base64: photoBase64,  // ✅ Use state directly
     timestamp: new Date().toISOString(),
     status: 'pending',
     user_email: email,
@@ -210,38 +209,43 @@ export default function App() {
     status_change: reason.statusChange || 'OFF',
   };
 
-    const newQueue = [...pendingQueue, event];
-    setPendingQueue(newQueue);
+  const newQueue = [...pendingQueue, event];
+  setPendingQueue(newQueue);
 
-    const supervisorEvent = {
-      id: event.id,
-      type: 'DOWNTIME',
-      reason: event.reason_label,
-      machine: event.machine_name,
-      machineId: event.machine_id,
-      time: new Date().toLocaleTimeString(),
-      icon: event.icon,
-      user: email,
-      status: 'created',
-      photo_uri: event.photo_uri,   
-      photo_base64: event.photo_base64,
-      acknowledged_by: null,
-      acknowledged_at: null,
-      cleared_at: null,
-    };
-    const newEvents = [supervisorEvent, ...operatorEvents];
-    setOperatorEvents(newEvents);
-
-    setMachines(prev => prev.map(m => 
-      m.id === selectedMachine.id 
-        ? { ...m, status: reason.statusChange || 'OFF' }
-        : m
-    ));
-
-    await saveAllData();
-    setScreen('home');
-    Alert.alert(`${reason.label} logged!✅`);
+  // ✅ FIX 2: Supervisor gets FULL PATH + CORRECT PHOTOS
+  const supervisorEvent = {
+    id: event.id,
+    type: 'DOWNTIME',
+    reason: event.reason_label,                    // Final: "Planned"
+    full_reason_path: `${selectedReason?.label || ''} → ${event.reason_label}`,  // "No Order → Planned"
+    photo_uri: photoUri,                           // ✅ CORRECT photo_uri
+    photo_base64: photoBase64,                     // ✅ CORRECT photo_base64  
+    machine: event.machine_name,
+    machineId: event.machine_id,
+    time: new Date().toLocaleTimeString(),
+    user: email.split('@')[0],                     // "john" from "john@factory.com"
+    icon: event.icon,
+    status: 'created',
+    acknowledged_by: null,
+    acknowledged_at: null,
+    cleared_at: null,
   };
+  
+  const newEvents = [supervisorEvent, ...operatorEvents];
+  setOperatorEvents(newEvents);
+
+  setMachines(prev => prev.map(m => 
+    m.id === selectedMachine.id 
+      ? { ...m, status: reason.statusChange || 'OFF' }
+      : m
+  ));
+
+  await saveAllData();
+  setScreen('home');
+  Alert.alert(`${reason.label} logged!✅`);
+};
+
+  
 
   const completeMaintenance = async (item) => {
     const event = {
@@ -452,40 +456,44 @@ export default function App() {
     <Ionicons name={item.icon} size={24} color="#10b981" />
     <View style={styles.eventContent}>
       <Text style={styles.eventType}>{item.type}</Text>
-      <Text style={styles.eventDesc}>{item.reason || item.task}</Text>
+      <Text style={styles.eventDesc}>
+        {item.full_reason_path || item.reason || item.task || 'No reason'}
+      </Text>
       
-      {/* 🔍 DEBUG - Shows which photo works */}
-      <View style={{ alignItems: 'center', marginTop: 4 }}>
-        {item.photo_uri && (
-          <View style={{ alignItems: 'center' }}>
-            <Image 
-              source={{ uri: item.photo_uri }} 
-              style={[styles.eventPhoto, { borderColor: 'green' }]}
-              resizeMode="cover"
-            />
-            <Text style={{fontSize: 8, color: 'green'}}>📸 URI OK</Text>
-          </View>
-        )}
-        {item.photo_base64 && (
-          <View style={{ alignItems: 'center', marginTop: 4 }}>
-            <Image 
-              source={{ uri: item.photo_base64 }} 
-              style={[styles.eventPhoto, { borderColor: 'blue' }]}
-              resizeMode="cover"
-            />
-            <Text style={{fontSize: 8, color: 'blue'}}>B64 OK</Text>
-          </View>
-        )}
-        {!item.photo_uri && !item.photo_base64 && (
-          <Text style={{fontSize: 8, color: 'red'}}>❌ No Photo</Text>
-        )}
-      </View>
+      {(item.photo_uri || item.photo_base64) && (
+        <TouchableOpacity 
+          style={{ alignItems: 'center', marginTop: 8 }}
+          onPress={() => {
+            Alert.alert(
+              'Photo Preview',
+              'Tap to view fullscreen!',
+              [
+                { text: 'View Fullscreen', onPress: () => setModalPhoto({ uri: item.photo_uri || item.photo_base64 }) },
+                { text: 'Cancel', style: 'cancel' }
+              ]
+            );
+          }}
+        >
+          <Image 
+            source={{ uri: item.photo_uri || item.photo_base64 }} 
+            style={[
+              styles.eventPhoto, 
+              { backgroundColor: '#f1f5f9', borderWidth: 2, borderColor: '#10b981', borderRadius: 12 }
+            ]}
+            resizeMode="cover"
+          />
+          <Text style={{fontSize: 11, color: '#10b981', marginTop: 4, fontWeight: '600'}}>
+            📸 Tap to enlarge
+          </Text>
+        </TouchableOpacity>
+      )}
       
       <Text style={styles.eventTime}>
         {item.machine} • {item.time} by {item.user}
         {item.status === 'acknowledged' && ` • ACK: ${item.acknowledged_by}`}
       </Text>
     </View>
+    
     {item.status === 'created' && (
       <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
         <Ionicons name="checkmark-outline" size={16} color="white" />
@@ -494,6 +502,8 @@ export default function App() {
   </View>
 );
 
+
+  
   const pendingCount = pendingQueue.length;
 
   if (screen === 'downtime') {
@@ -556,7 +566,7 @@ export default function App() {
                   />
                   
                   <TouchableOpacity style={styles.submitBtn} onPress={() => handleDowntimeSubmit(currentReasons[0])}>
-                    <Text style={styles.submitBtnText}>SUBMIT DOWNTIME</Text>
+                    <Text style={styles.submitBtnText}>SUBMIT DOWNTIME{currentReasons[0]?.label}</Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -614,8 +624,43 @@ export default function App() {
     );
   }
 
+
   // HOME SCREEN - FIXED STRUCTURE
-  return (
+
+
+return (
+  <>
+    {/* ✅ FULLSCREEN PHOTO MODAL */}
+    {modalPhoto && (
+      <Modal
+        visible={true}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalPhoto(null)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1}
+          onPress={() => setModalPhoto(null)}
+        >
+          <View style={styles.modalContainer}>
+            <TouchableOpacity 
+              style={styles.modalClose} 
+              onPress={() => setModalPhoto(null)}
+            >
+              <Ionicons name="close" size={28} color="white" />
+            </TouchableOpacity>
+            
+            <Image 
+              source={{ uri: modalPhoto.uri }} 
+              style={styles.modalImage}
+              resizeMode="contain"
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    )}
+
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
@@ -703,8 +748,10 @@ export default function App() {
         <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
     </View>
-  );
+  </>
+);
 }
+
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
@@ -1298,11 +1345,38 @@ const styles = StyleSheet.create({
     elevation: 12,
     zIndex: 1000,
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.9)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+modalContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
+},
+modalClose: {
+  position: 'absolute',
+  top: 60,
+  right: 20,
+  zIndex: 1000,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  borderRadius: 20,
+  padding: 8,
+},
+modalImage: {
+  flex: 1,
+  width: '100%',
+  height: '100%',
+  resizeMode: 'contain',
+},
   logoutText: { 
     color: 'white', 
     fontSize: 16, 
     fontWeight: '800', 
     marginLeft: 8,
-    letterSpacing: 0.5 
-  },
-});
+    letterSpacing: 0.5
+  }
+});  // ✅ THIS IS THE FINAL LINE
