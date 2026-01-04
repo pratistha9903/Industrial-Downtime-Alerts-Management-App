@@ -129,8 +129,11 @@ npx expo install expo-image-picker
 Your Storage Keys:
 
 javascript
+
 await AsyncStorage.setItem('jwt', 'john|1640995200000|factory-001');
+
 await AsyncStorage.setItem('role', 'operator');
+
 await AsyncStorage.setItem('pendingQueue', JSON.stringify(events));
 
 ---
