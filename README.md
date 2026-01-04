@@ -160,14 +160,14 @@ await AsyncStorage.setItem('pendingQueue', JSON.stringify(events));
 **🔧 PRODUCTION DEPLOYMENT (EAS Commands)**
 ---
 
-# APK Build (Production)
+**APK Build (Production)**
 eas login
 eas build --platform android --profile preview
 
-# Live Updates (No reinstall needed)
+**Live Updates (No reinstall needed)**
 eas update --branch production
 
-# Development (QR Code)
+**Development (QR Code)**
 
 npx expo start --clear --tunnel
 
