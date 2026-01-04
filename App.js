@@ -91,6 +91,7 @@ export default function App() {
   const [currentReasons, setCurrentReasons] = useState([]);
   const [selectedReason, setSelectedReason] = useState(null);
   const [photoUri, setPhotoUri] = useState(null);
+  const [photoBase64, setPhotoBase64] = useState(null);
   const [notes, setNotes] = useState('');
   const [operatorEvents, setOperatorEvents] = useState([]);
   const [syncing, setSyncing] = useState(false);
@@ -172,32 +173,42 @@ export default function App() {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: false,
       quality: 0.3,
+      base64: true, 
     });
 
     if (!result.canceled && result.assets?.[0]) {
-      setPhotoUri(result.assets[0].uri);
+      const asset = result.assets[0];
+      setPhotoUri(assets.uri);
+      setPhotoBase64(asset.base64 || null);
     }
   };
 
   const handleDowntimeSubmit = async (reason) => {
-    const event = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      tenant_id: TENANT_ID,
-      type: 'downtime',
-      machine_id: selectedMachine.id,
-      machine_name: selectedMachine.name,
-      reason_code: selectedReason?.code || reason.code,
-      reason_label: selectedReason?.label || reason.label,
-      notes,
-      photo_uri: photoUri,
-      photo_base64: photoUri ? await fileToBase64(photoUri) : null, 
-      timestamp: new Date().toISOString(),
-      status: 'pending',
-      user_email: email,
-      icon: reason.icon || '📋',
-      status_change: reason.statusChange || 'OFF',
-      
-    };
+  const event = {
+    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    tenant_id: TENANT_ID,
+    type: 'downtime',
+    machine_id: selectedMachine.id,
+    machine_name: selectedMachine.name,
+    reason_code: selectedReason?.code || reason.code,
+    reason_label: selectedReason?.label || reason.label,
+    notes,
+    photo_uri: photoUri,
+    
+    // ✅ CORRECT SYNTAX:
+    photo_base64: photoUri ? await (async () => {
+      console.log('🔄 Converting photo:', photoUri);
+      const base64 = await fileToBase64(photoUri);
+      console.log('✅ Base64 result:', base64 ? 'SUCCESS (' + base64.substring(0, 50) + '...)' : 'FAILED');
+      return base64;
+    })() : null,
+    
+    timestamp: new Date().toISOString(),
+    status: 'pending',
+    user_email: email,
+    icon: reason.icon || '📋',
+    status_change: reason.statusChange || 'OFF',
+  };
 
     const newQueue = [...pendingQueue, event];
     setPendingQueue(newQueue);
@@ -434,33 +445,54 @@ export default function App() {
   
 
   const renderOperatorEvent = ({ item }) => (
-    <View style={[
-      styles.eventCard, 
-      item.status === 'acknowledged' && styles.eventAcknowledged
-    ]}>
-      <Ionicons name={item.icon} size={24} color="#10b981" />
-      <View style={styles.eventContent}>
-        <Text style={styles.eventType}>{item.type}</Text>
-        <Text style={styles.eventDesc}>{item.reason || item.task}</Text>
-        {/* ✅ SUPERVISOR PHOTO PREVIEW */}
+  <View style={[
+    styles.eventCard, 
+    item.status === 'acknowledged' && styles.eventAcknowledged
+  ]}>
+    <Ionicons name={item.icon} size={24} color="#10b981" />
+    <View style={styles.eventContent}>
+      <Text style={styles.eventType}>{item.type}</Text>
+      <Text style={styles.eventDesc}>{item.reason || item.task}</Text>
+      
+      {/* 🔍 DEBUG - Shows which photo works */}
+      <View style={{ alignItems: 'center', marginTop: 4 }}>
+        {item.photo_uri && (
+          <View style={{ alignItems: 'center' }}>
+            <Image 
+              source={{ uri: item.photo_uri }} 
+              style={[styles.eventPhoto, { borderColor: 'green' }]}
+              resizeMode="cover"
+            />
+            <Text style={{fontSize: 8, color: 'green'}}>📸 URI OK</Text>
+          </View>
+        )}
         {item.photo_base64 && (
-          <Image 
-           source={{ uri: item.photo_base64 }} 
-           style={styles.eventPhoto}
-           />
-     )}
-        <Text style={styles.eventTime}>
-          {item.machine} • {item.time} by {item.user}
-          {item.status === 'acknowledged' && ` • ACK: ${item.acknowledged_by}`}
-        </Text>
+          <View style={{ alignItems: 'center', marginTop: 4 }}>
+            <Image 
+              source={{ uri: item.photo_base64 }} 
+              style={[styles.eventPhoto, { borderColor: 'blue' }]}
+              resizeMode="cover"
+            />
+            <Text style={{fontSize: 8, color: 'blue'}}>B64 OK</Text>
+          </View>
+        )}
+        {!item.photo_uri && !item.photo_base64 && (
+          <Text style={{fontSize: 8, color: 'red'}}>❌ No Photo</Text>
+        )}
       </View>
-      {item.status === 'created' && (
-        <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
-          <Ionicons name="checkmark-outline" size={16} color="white" />
-        </TouchableOpacity>
-      )}
+      
+      <Text style={styles.eventTime}>
+        {item.machine} • {item.time} by {item.user}
+        {item.status === 'acknowledged' && ` • ACK: ${item.acknowledged_by}`}
+      </Text>
     </View>
-  );
+    {item.status === 'created' && (
+      <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
+        <Ionicons name="checkmark-outline" size={16} color="white" />
+      </TouchableOpacity>
+    )}
+  </View>
+);
 
   const pendingCount = pendingQueue.length;
 
@@ -616,7 +648,7 @@ export default function App() {
                 syncing && styles.syncing
               ]}
               onPress={syncEvents}
-              disabled={pendingCount === 0 || !isOnline}
+              disabled={badgeCount === 0 || !isOnline}
             >
               <Ionicons 
                 name={syncing ? "sync" : "sync-outline"} 
