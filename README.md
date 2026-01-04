@@ -8,7 +8,7 @@
 
 ## Single-file App for  operators & supervisors. Offline-first AsyncStorage → Supabase sync.
 
-### Production deployed -  Click on LIVE DEMO --->SCAN QR NOW ON EXPO GO-->RUN TASK ON APP**
+### Production deployed -  Click on LIVE DEMO --->SCAN QR NOW ON EXPO GO-->RUN TASK ON APP
 
 
 ---
