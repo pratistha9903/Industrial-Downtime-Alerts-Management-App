@@ -8,10 +8,9 @@
 🏭 BIGGEST BUSINESS PROBLEM: Factory Downtime Tracking Fails Offline
  
 🎯 **The Real Factory Crisis**
+ **Factory machines stop (downtime) but workers can't log reasons because WiFi fails or airplane mode is on. Result = ZERO data → Managers blind → Losses continue.**
 
-Problem: Factory machines stop (downtime) but workers can't log reasons because WiFi fails or airplane mode is on. Result = ZERO data → Managers blind → Losses continue.
-
-Daily Factory Reality:
+**Daily Factory Reality:**
 
 ✅ Cutter breaks → No WiFi → Can't log
 
@@ -25,18 +24,21 @@ Expo, React Native, AsyncStorage, and useState are the main tools you used in yo
 ---
 **Tool Used Are:**
 
-📱 Tool 1: Expo (The Magic Box)
+📱 **Tool 1: Expo (The Magic Box)**
 Expo makes building React Native apps super easy because it handles all the hard setup work for you. You chose Expo so you could focus on coding your factory screens instead of fighting Android/iOS build errors. It lets you test on your phone instantly with just "expo start" - perfect for quick demos during interviews. Expo gives you a professional app without needing a Mac or complex build tools.
 
-🎨 Tool 2: React Native (Phone Screens)
+🎨 **Tool 2: React Native (Phone Screens)**
 React Native lets you build native iOS/Android apps using JavaScript, which you already know well. You picked it because factory workers need smooth, fast apps that feel like real phone apps (not web pages). It gives you buttons, screens, and badges that work perfectly on any phone - exactly what supervisors expect to see on the shop floor.
 
-💾 Tool 3: AsyncStorage (Phone's Memory)
+💾 **Tool 3: AsyncStorage (Phone's Memory)**
 AsyncStorage saves your downtime events directly to the phone's internal storage so data survives airplane mode, WiFi drops, and app crashes. You chose it because factories have terrible internet, and operators can't lose logged events. Unlike regular state (which disappears on restart), AsyncStorage keeps your pendingQueue safe until the supervisor syncs it.
 
-🧠 Tool 4: useState (App's Brain)
+🧠 **Tool 4: useState (App's Brain)**
 useState manages your app's memory - it tracks pendingQueue, badgeCount, currentRole, and screen states. You used React hooks because they're simple and powerful for handling factory flows like "operator logs → red badge appears → supervisor syncs → green check". No complex Redux needed for your MVP.
-🚀 My Solution:
+
+<img width="500" height="224" alt="image" src="https://github.com/user-attachments/assets/219c87dc-951c-4a28-9e9b-15e90f8d3748" />
+
+**🚀 My Solution:**
 
 1. **Offline logging** → AsyncStorage saves ALWAYS
 
@@ -48,15 +50,9 @@ useState manages your app's memory - it tracks pendingQueue, badgeCount, current
 
 ---
 🏗️ **SIMPLE ARCHITECTURE EXPLANATION** 
-┌─────────────────────┐  ← Layer 1: Screens (What User Sees)
-│   Login │ Dashboard  │
-├─────────────────────┤
-│ useState + Functions│  ← Layer 2: Logic (App Brain)
-│ pendingQueue logic  │
-├─────────────────────┤
-│   AsyncStorage      │  ← Layer 3: Storage (Data Safe)
-│ Phone Memory (SAFE) │
-└─────────────────────┘
+<img width="642" height="432" alt="image" src="https://github.com/user-attachments/assets/62b0732d-3355-4dbe-8d3c-47f2bdddf127" />
+
+
 
 ---
 🔄 **DATA FLOW (Step-by-Step Story)**
@@ -246,9 +242,13 @@ text
 1. 🌐 **SSE Backend** + background sync
 2. 📈 **OEE Dashboard** from downtime data
 3. 📸 **Photo Watermarking** (machine_id + ts)
-
 ---
 
+🚀 SUMMARY BOX
+---
+<img width="453" height="251" alt="image" src="https://github.com/user-attachments/assets/0b99ccb4-814d-40e6-b6a2-75f41b038edb" />
+
+---
 ## 📄 License
 MIT License © 2025 Pratistha9903
 Built for: Cross-Platform Mobile Challenge (Intern)
