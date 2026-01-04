@@ -122,6 +122,8 @@ npx expo install expo-image-picker
 ---
 
 **☁️ SUPABASE PRODUCTION SCHEMA**
+
+
 <img width="624" height="329" alt="image" src="https://github.com/user-attachments/assets/161503e0-ec6f-47a4-9ae8-76ad835d911a" />
 
 Your Storage Keys:
