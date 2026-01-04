@@ -44,6 +44,8 @@ Single-file React Native Expo MVP (800+ lines App.js) for factory operators & su
 | supabase-js          | Cloud sync (downtime_events table)   | Supabase     |
 | FlatList             | Nested reason tree UI (2 levels)     | React Native |
 | EAS Build            | Production APK + OTA updates         | EAS Build    |
+
+
 ​---
 
 🏗️ EASIER 3-LAYER ARCHITECTURE
