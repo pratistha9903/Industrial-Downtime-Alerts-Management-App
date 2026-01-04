@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/1c0e46ef-8cdb-4b38-8fa5-914c4d327e9a
 
 https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 
-### QR Code ScreenShort
+### QR Code Screenshort
 <img width="1619" height="847" alt="image" src="https://github.com/user-attachments/assets/7bfa63f4-161f-4f04-9900-3009f734a695" />
 
 ---
