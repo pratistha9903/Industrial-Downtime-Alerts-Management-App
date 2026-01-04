@@ -11,6 +11,13 @@
 **Production deployed -  Click on LIVE DEMO ---> TO SEE VIDEO
 Click on Expo Go --> SCAN QR NOW ON EXPO GO-->RUN TASK ON APP**
 
+
+-------------
+**Demo Video**
+
+https://github.com/user-attachments/assets/1e1fdf1c-129b-4d06-957c-2844eaefd8b3
+
+------------
 **🎯 WHAT I BUILT (Exact Code Features)**
 
 ✅ Mock login: Operator + Supervisor modes→ role toggle
