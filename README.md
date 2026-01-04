@@ -12,13 +12,11 @@
 
 **🎯 WHAT I BUILT (Exact Code Features)**
 
-✅ SINGLE App.js- Operator + Supervisor modes
-
-✅ Mock login: "john@factory.com" → role toggle
+✅ Mock login: Operator + Supervisor modes→ role toggle
 
 ✅ 3 Machines: M-101(Cutter), M-102(Roller), M-103(Packer)
 
-✅ Nested reason tree: No Order → Planned/Unplanned
+✅ Nested reason tree: No Order → Planned/Unplanned(Operator side)
 
 ✅ Camera photos → base64 → AsyncStorage → Supabase
 
