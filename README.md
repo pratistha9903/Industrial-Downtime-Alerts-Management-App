@@ -280,7 +280,6 @@ Supervisor: shyam@factory.com
 
 ✈️ Test offline: Airplane ON → Log → Kill → Restart → Sync
 
-✅ Production-ready single-file MVP
 ---
 ## ⚡ ONE COMMAND START:
 
