@@ -6,8 +6,8 @@
 
 **Production-grade offline-first field application** for machine operators and supervisors. **✅ 100% MVP requirements fulfilled**
 🏭 BIGGEST BUSINESS PROBLEM: Factory Downtime Tracking Fails Offline
-
-🎯 The Real Factory Crisis 
+ 
+🎯 **The Real Factory Crisis**
 
 Problem: Factory machines stop (downtime) but workers can't log reasons because WiFi fails or airplane mode is on. Result = ZERO data → Managers blind → Losses continue.
 
@@ -21,6 +21,9 @@ Daily Factory Reality:
 
 ✅ $5000/hour lost → No data why ❌
 Expo, React Native, AsyncStorage, and useState are the main tools you used in your factory downtime tracker app.
+
+---
+**Tool Used Are:**
 
 📱 Tool 1: Expo (The Magic Box)
 Expo makes building React Native apps super easy because it handles all the hard setup work for you. You chose Expo so you could focus on coding your factory screens instead of fighting Android/iOS build errors. It lets you test on your phone instantly with just "expo start" - perfect for quick demos during interviews. Expo gives you a professional app without needing a Mac or complex build tools.
@@ -44,8 +47,7 @@ useState manages your app's memory - it tracks pendingQueue, badgeCount, current
 4. **90-second demo** → Managers understand instantly
 
 ---
-**🏗️ 3 LAYERS ARCHITECTURE EXPLANATION **
-
+🏗️ **SIMPLE ARCHITECTURE EXPLANATION** 
 ┌─────────────────────┐  ← Layer 1: Screens (What User Sees)
 │   Login │ Dashboard  │
 ├─────────────────────┤
@@ -57,7 +59,7 @@ useState manages your app's memory - it tracks pendingQueue, badgeCount, current
 └─────────────────────┘
 
 ---
-🔄 DATA FLOW (Step-by-Step Story)
+🔄 **DATA FLOW (Step-by-Step Story)**
 text
 1. Operator taps "Cutter 1" BUTTON
    ↓ (Presentation Layer)
