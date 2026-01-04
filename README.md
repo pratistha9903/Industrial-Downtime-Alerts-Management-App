@@ -48,33 +48,10 @@ Single-file React Native Expo MVP (800+ lines App.js) for factory operators & su
 
 ​---
 
-🏗️ EASIER 3-LAYER ARCHITECTURE
-┌─────────────────────────────┐
-│  LAYER 1                    │
-│  📱 UI / SCREENS            │
-│  ├─ Login Screen            │
-│  ├─ Machine Dashboard 🏭     │
-│  ├─ Reason Tree 🌳          │
-│  └─ Photo Modal 📸          │
-└───────────┬──────────────────┘
-            │ useState
-            ▼
-┌─────────────────────────────┐
-│  LAYER 2                    │
-│  🧠 APP LOGIC               │
-│  ├─ screen = 'dashboard'    │
-│  ├─ pendingQueue = [3]      │
-│  ├─ machines = [M101..]     │
-│  └─ saveAllData()           │
-└───────────┬──────────────────┘
-            │ saveAllData()
-            ▼
-┌─────────────────────────────┐
-│  LAYER 3                    │
-│  💾 STORAGE                 │
-│  ├─ AsyncStorage (Offline)  │
-│  └─ Supabase (Cloud)        │
-└─────────────────────────────┘
+**🏗️ EASIER 3-LAYER ARCHITECTURE**
+
+<img width="222" height="485" alt="image" src="https://github.com/user-attachments/assets/52cb897f-f35e-4ec0-8e46-0c847f38d218" />
+
 
 ✈️ Airplane Mode → Data SAFE → Supervisor Syncs Later ✅
 
