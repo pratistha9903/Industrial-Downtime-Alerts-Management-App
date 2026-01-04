@@ -1,3 +1,4 @@
+import { supabase } from './supabase';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -11,6 +12,7 @@ import {
   StatusBar,
   Dimensions,
   Image,
+  Modal, 
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -26,42 +28,56 @@ const INITIAL_MACHINES = [
 ];
 
 const REASON_TREE = [
-  { code: 'WORKING-PROPERLY', label: 'Working Properly', icon: '✅', statusChange: 'RUN' },
+  { code: 'WORKING-PROPERLY', label: 'Working Properly', icon: 'checkmark-circle', statusChange: 'RUN' },
   {
     code: 'NO-ORDER',
     label: 'No Order',
-    icon: '📋',
+    icon: 'document-outline',
     children: [
-      { code: 'NO-ORDER-PLANNED', label: 'Planned', statusChange: 'IDLE' },
-      { code: 'NO-ORDER-UNPLANNED', label: 'Unplanned', statusChange: 'OFF' },
+      { code: 'NO-ORDER-PLANNED', label: 'Planned', statusChange: 'IDLE',icon: 'time-outline' },
+      { code: 'NO-ORDER-UNPLANNED', label: 'Unplanned', statusChange: 'OFF',icon: 'time-outline' },
     ]
   },
   {
     code: 'POWER',
     label: 'Power Failure',
-    icon: '⚡',
+    icon: 'flash-outline',
     children: [
-      { code: 'POWER-GRID', label: 'Grid', statusChange: 'OFF' },
-      { code: 'POWER-INTERNAL', label: 'Internal', statusChange: 'OFF' },
+      { code: 'POWER-GRID', label: 'Grid', statusChange: 'OFF' ,icon: 'grid-outline' },
+      { code: 'POWER-INTERNAL', label: 'Internal', statusChange: 'OFF',icon: 'battery-charging-outline' },
     ]
   },
   {
     code: 'CHANGEOVER',
     label: 'Changeover',
-    icon: '🔄',
+    icon: 'sync-outline',
     children: [
-      { code: 'CHANGEOVER-TOOLING', label: 'Tooling', statusChange: 'IDLE' },
-      { code: 'CHANGEOVER-PRODUCT', label: 'Product', statusChange: 'IDLE' },
+      { code: 'CHANGEOVER-TOOLING', label: 'Tooling', statusChange: 'IDLE' ,icon: 'construct-outline' },
+      { code: 'CHANGEOVER-PRODUCT', label: 'Product', statusChange: 'IDLE' ,icon: 'construct-outline' },
     ]
   },
 ];
 
 const maintenanceItems = [
-  { id: 'm1', machineId: 'M-101', title: '🛢️ Oil filter change', status: 'due' },
-  { id: 'm2', machineId: 'M-102', title: '⛓️ Belt tension check', status: 'overdue' },
-  { id: 'm3', machineId: 'M-101', title: '✂️ Clean cutter blades', status: 'done' },
-  { id: 'm4', machineId: 'M-103', title: '📡 Inspect sensors', status: 'due' },
+  { id: 'm1', machineId: 'M-101', title: '🛢️ Oil filter change', status: 'due' },     // Keep emoji in title
+  { id: 'm2', machineId: 'M-102', title: '⛓️ Belt tension check', status: 'overdue' },  // Keep emoji in title
+  { id: 'm3', machineId: 'M-101', title: '✂️ Clean cutter blades', status: 'done' },    // Keep emoji in title
+  { id: 'm4', machineId: 'M-103', title: '📡 Inspect sensors', status: 'due' },  
 ];
+const fileToBase64 = async (uri) => {
+  try {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => resolve(reader.result);
+    });
+  } catch (error) {
+    console.log('Photo to base64 failed:', error);
+    return null;
+  }
+};
 
 export default function App() {
   const [screen, setScreen] = useState('login');
@@ -76,9 +92,12 @@ export default function App() {
   const [currentReasons, setCurrentReasons] = useState([]);
   const [selectedReason, setSelectedReason] = useState(null);
   const [photoUri, setPhotoUri] = useState(null);
+  const [photoBase64, setPhotoBase64] = useState(null);
   const [notes, setNotes] = useState('');
   const [operatorEvents, setOperatorEvents] = useState([]);
   const [syncing, setSyncing] = useState(false);
+  const [badgeCount, setBadgeCount] = useState(0);//
+  const [modalPhoto, setModalPhoto] = useState(null);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -97,7 +116,7 @@ export default function App() {
         if (queue) setPendingQueue(JSON.parse(queue));
         if (machineData) setMachines(JSON.parse(machineData));
         if (eventsData) setOperatorEvents(JSON.parse(eventsData));
-        
+
         setScreen('login');
       } catch (error) {
         console.log('Load error:', error);
@@ -106,6 +125,10 @@ export default function App() {
     };
     initializeApp();
   }, []);
+
+  useEffect(() => {
+    setBadgeCount(pendingQueue.length);  // Sync badge with queue
+  }, [pendingQueue]);
 
   const saveAllData = async () => {
     try {
@@ -149,64 +172,80 @@ export default function App() {
   };
 
   const takePhoto = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: false,
-      quality: 0.3,
-    });
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: false,
+    quality: 0.3,
+    base64: true, 
+  });
 
-    if (!result.canceled && result.assets?.[0]) {
-      setPhotoUri(result.assets[0].uri);
-    }
-  };
+  if (!result.canceled && result.assets?.[0]) {
+    const asset = result.assets[0];
+    console.log('📸 Photo captured:', asset.uri);  // DEBUG
+    setPhotoUri(asset.uri);                        // ✅ Fix typo
+    setPhotoBase64(asset.base64 || null);
+  }
+};
+
 
   const handleDowntimeSubmit = async (reason) => {
-    const event = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      tenant_id: TENANT_ID,
-      type: 'downtime',
-      machine_id: selectedMachine.id,
-      machine_name: selectedMachine.name,
-      reason_code: selectedReason?.code || reason.code,
-      reason_label: selectedReason?.label || reason.label,
-      notes,
-      photo_uri: photoUri,
-      timestamp: new Date().toISOString(),
-      status: 'pending',
-      user_email: email,
-      icon: reason.icon || '📋',
-      status_change: reason.statusChange || 'OFF',
-    };
-
-    const newQueue = [...pendingQueue, event];
-    setPendingQueue(newQueue);
-
-    const supervisorEvent = {
-      id: event.id,
-      type: 'DOWNTIME',
-      reason: event.reason_label,
-      machine: event.machine_name,
-      machineId: event.machine_id,
-      time: new Date().toLocaleTimeString(),
-      icon: event.icon,
-      user: email,
-      status: 'created',
-      acknowledged_by: null,
-      acknowledged_at: null,
-      cleared_at: null,
-    };
-    const newEvents = [supervisorEvent, ...operatorEvents];
-    setOperatorEvents(newEvents);
-
-    setMachines(prev => prev.map(m => 
-      m.id === selectedMachine.id 
-        ? { ...m, status: reason.statusChange || 'OFF' }
-        : m
-    ));
-
-    await saveAllData();
-    setScreen('home');
-    Alert.alert('✅', `${reason.label} logged! Pending sync.`);
+  // ✅ FIX 1: Use correct photo variables
+  const capturedPhoto = photoUri ? { uri: photoUri, base64: photoBase64 } : null;
+  
+  const event = {
+    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    tenant_id: TENANT_ID,
+    type: 'downtime',
+    machine_id: selectedMachine.id,
+    machine_name: selectedMachine.name,
+    reason_code: selectedReason?.code || reason.code,
+    reason_label: reason.label,  // ✅ FINAL REASON
+    notes,
+    photo_uri: photoUri,
+    photo_base64: photoBase64,  // ✅ Use state directly
+    timestamp: new Date().toISOString(),
+    status: 'pending',
+    user_email: email,
+    icon: reason.icon || '📋',
+    status_change: reason.statusChange || 'OFF',
   };
+
+  const newQueue = [...pendingQueue, event];
+  setPendingQueue(newQueue);
+
+  // ✅ FIX 2: Supervisor gets FULL PATH + CORRECT PHOTOS
+  const supervisorEvent = {
+    id: event.id,
+    type: 'DOWNTIME',
+    reason: event.reason_label,                    // Final: "Planned"
+    full_reason_path: `${selectedReason?.label || ''} → ${event.reason_label}`,  // "No Order → Planned"
+    photo_uri: photoUri,                           // ✅ CORRECT photo_uri
+    photo_base64: photoBase64,                     // ✅ CORRECT photo_base64  
+    machine: event.machine_name,
+    machineId: event.machine_id,
+    time: new Date().toLocaleTimeString(),
+    user: email.split('@')[0],                     // "john" from "john@factory.com"
+    icon: event.icon,
+    status: 'created',
+    acknowledged_by: null,
+    acknowledged_at: null,
+    cleared_at: null,
+  };
+  
+  const newEvents = [supervisorEvent, ...operatorEvents];
+  setOperatorEvents(newEvents);
+
+  setMachines(prev => prev.map(m => 
+    m.id === selectedMachine.id 
+      ? { ...m, status: reason.statusChange || 'OFF' }
+      : m
+  ));
+
+  await saveAllData();
+  setScreen('home');
+  Alert.alert(`${reason.label} logged!✅`);
+};
+
+  
 
   const completeMaintenance = async (item) => {
     const event = {
@@ -244,22 +283,75 @@ export default function App() {
     setOperatorEvents(newEvents);
 
     await saveAllData();
-    Alert.alert('✅', 'Maintenance logged!');
+    Alert.alert('Maintenance logged✅!');
   };
 
-  const attemptSync = async () => {
-    if (pendingQueue.length === 0 || syncing || !isOnline) return;
-
-    setSyncing(true);
+  const syncEvents = async () => {
+    if (pendingQueue.length === 0) return;
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setSyncing(true);
+      
+      // ✅ ONLY send Supabase-compatible fields
+      
+      const eventsToSync = pendingQueue.map(event => {
+        const machineName = event.machine_name || 
+                           (event.machine_id && machines.find(m => m.id === event.machine_id)?.name) || 
+                         'Unknown Machine';
+              
+         return {
+          id: event.id,
+          tenant_id: event.tenant_id || 'factory-001',
+          machine_id: event.machine_id,
+          machine: machineName,  // ✅ Now guaranteed NOT null
+          reason: event.reason_label || event.reason || event.task_title || 'N/A',
+          status: event.status || 'pending',
+          photo_url: event.photo_uri,
+          user_email: event.user_email || email,
+          icon: event.icon || '📋',
+          notes: event.notes || ''
+         };
+       });
+
+
+    // 1. Send ALL events to Supabase
+      const { data, error } = await supabase
+      .from('downtime_events')
+      .insert(eventsToSync);
+      
+      if (error) throw error;
+
+    // 2. Clear local storage AFTER success
+      await AsyncStorage.removeItem('pendingQueue');
       setPendingQueue([]);
-      Alert.alert('🔄', 'All data synced!');
-      await saveAllData();
+      setBadgeCount(0);
+    
+      console.log('✅ Synced', eventsToSync.length, 'Events Synced Successfully!');
+      Alert.alert('✅Success', `${eventsToSync.length} Events Synced Successfully!`,);
+    } catch (error) {
+      console.error('Sync failed:', error.message);
+      Alert.alert('Sync Failed', error.message);
+      // Data stays safe in AsyncStorage
     } finally {
-      setSyncing(false);
+    setSyncing(false);
     }
   };
+  
+  const testConnection = async () => {
+    try {
+      const { data, error } = await supabase
+      .from('downtime_events')
+      .select('count', { count: 'exact', head: true });
+      
+      if (data) {
+        Alert.alert('✅ Connected!', `Found ${data[0].count} events`);
+    }
+  } catch (error) {
+    Alert.alert('❌ Connection failed', error.message);
+  }
+};
+
+
 
   const acknowledgeEvent = (event) => {
     setOperatorEvents(prev => {
@@ -277,7 +369,7 @@ export default function App() {
       saveAllData();
       return updated;
     });
-    Alert.alert('✅', `Event acknowledged by ${email}`);
+    Alert.alert( `Event acknowledged by ${email}✅`);
   };
 
   const getTopReason = (machineId) => {
@@ -309,6 +401,7 @@ export default function App() {
 
   const renderMachineCard = ({ item }) => (
     <View style={styles.machineCardContainer}>
+      
       <TouchableOpacity 
         style={[styles.machineCard, getMachineCardStyle(item.status)]}
         onPress={() => startDowntime(item)}
@@ -353,29 +446,64 @@ export default function App() {
       ))}
     </View>
   );
+  
 
   const renderOperatorEvent = ({ item }) => (
-    <View style={[
-      styles.eventCard, 
-      item.status === 'acknowledged' && styles.eventAcknowledged
-    ]}>
-      <Text style={styles.eventIcon}>{item.icon}</Text>
-      <View style={styles.eventContent}>
-        <Text style={styles.eventType}>{item.type}</Text>
-        <Text style={styles.eventDesc}>{item.reason || item.task}</Text>
-        <Text style={styles.eventTime}>
-          {item.machine} • {item.time} by {item.user}
-          {item.status === 'acknowledged' && ` • ACK: ${item.acknowledged_by}`}
-        </Text>
-      </View>
-      {item.status === 'created' && (
-        <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
-          <Ionicons name="checkmark-outline" size={16} color="white" />
+  <View style={[
+    styles.eventCard, 
+    item.status === 'acknowledged' && styles.eventAcknowledged
+  ]}>
+    <Ionicons name={item.icon} size={24} color="#10b981" />
+    <View style={styles.eventContent}>
+      <Text style={styles.eventType}>{item.type}</Text>
+      <Text style={styles.eventDesc}>
+        {item.full_reason_path || item.reason || item.task || 'No reason'}
+      </Text>
+      
+      {(item.photo_uri || item.photo_base64) && (
+        <TouchableOpacity 
+          style={{ alignItems: 'center', marginTop: 8 }}
+          onPress={() => {
+            Alert.alert(
+              'Photo Preview',
+              'Tap to view fullscreen!',
+              [
+                { text: 'View Fullscreen', onPress: () => setModalPhoto({ uri: item.photo_uri || item.photo_base64 }) },
+                { text: 'Cancel', style: 'cancel' }
+              ]
+            );
+          }}
+        >
+          <Image 
+            source={{ uri: item.photo_uri || item.photo_base64 }} 
+            style={[
+              styles.eventPhoto, 
+              { backgroundColor: '#f1f5f9', borderWidth: 2, borderColor: '#10b981', borderRadius: 12 }
+            ]}
+            resizeMode="cover"
+          />
+          <Text style={{fontSize: 11, color: '#10b981', marginTop: 4, fontWeight: '600'}}>
+            📸 Tap to enlarge
+          </Text>
         </TouchableOpacity>
       )}
+      
+      <Text style={styles.eventTime}>
+        {item.machine} • {item.time} by {item.user}
+        {item.status === 'acknowledged' && ` • ACK: ${item.acknowledged_by}`}
+      </Text>
     </View>
-  );
+    
+    {item.status === 'created' && (
+      <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
+        <Ionicons name="checkmark-outline" size={16} color="white" />
+      </TouchableOpacity>
+    )}
+  </View>
+);
 
+
+  
   const pendingCount = pendingQueue.length;
 
   if (screen === 'downtime') {
@@ -410,7 +538,7 @@ export default function App() {
                 renderItem={({ item }) => (
                   <TouchableOpacity style={styles.reasonCard} onPress={() => selectReasonLevel(item)}>
                     <View style={styles.reasonIconContainer}>
-                      <Text style={styles.reasonIcon}>{item.icon || '➤'}</Text>
+                      <Ionicons name={item.icon} size={24} color="#10b981" />
                     </View>
                     <Text style={styles.reasonLabel}>{item.label}</Text>
                     <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
@@ -438,7 +566,7 @@ export default function App() {
                   />
                   
                   <TouchableOpacity style={styles.submitBtn} onPress={() => handleDowntimeSubmit(currentReasons[0])}>
-                    <Text style={styles.submitBtnText}>SUBMIT DOWNTIME</Text>
+                    <Text style={styles.submitBtnText}>SUBMIT DOWNTIME{currentReasons[0]?.label}</Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -489,15 +617,50 @@ export default function App() {
           </View>
           <TouchableOpacity style={styles.loginBtn} onPress={login}>
             <Ionicons name="enter-outline" size={20} color="white" />
-            <Text style={styles.loginBtnText}>ENTER SYSTEM</Text>
+            <Text style={styles.loginBtnText}>LOGIN</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   }
 
+
   // HOME SCREEN - FIXED STRUCTURE
-  return (
+
+
+return (
+  <>
+    {/* ✅ FULLSCREEN PHOTO MODAL */}
+    {modalPhoto && (
+      <Modal
+        visible={true}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalPhoto(null)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1}
+          onPress={() => setModalPhoto(null)}
+        >
+          <View style={styles.modalContainer}>
+            <TouchableOpacity 
+              style={styles.modalClose} 
+              onPress={() => setModalPhoto(null)}
+            >
+              <Ionicons name="close" size={28} color="white" />
+            </TouchableOpacity>
+            
+            <Image 
+              source={{ uri: modalPhoto.uri }} 
+              style={styles.modalImage}
+              resizeMode="contain"
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    )}
+
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
@@ -511,9 +674,9 @@ export default function App() {
           </View>
         </View>
         <View style={styles.headerRight}>
-          {role === 'operator' && pendingCount > 0 && (
+          {role === 'operator' && badgeCount > 0 && (
             <View style={styles.pendingBadge}>
-              <Text style={styles.pendingText}>{pendingCount}</Text>
+              <Text style={styles.pendingText}>{badgeCount}</Text>
             </View>
           )}
           <TouchableOpacity onPress={toggleOnlineStatus}>
@@ -526,19 +689,19 @@ export default function App() {
             <TouchableOpacity 
               style={[
                 styles.syncBtnHeader, 
-                (pendingCount === 0 || !isOnline) && styles.syncBtnDisabled,
+                (badgeCount === 0 || !isOnline) && styles.syncBtnDisabled,
                 syncing && styles.syncing
               ]}
-              onPress={attemptSync}
-              disabled={pendingCount === 0 || !isOnline}
+              onPress={syncEvents}
+              disabled={badgeCount === 0 || !isOnline}
             >
               <Ionicons 
                 name={syncing ? "sync" : "sync-outline"} 
                 size={16} 
-                color={(pendingCount === 0 || !isOnline) ? '#9ca3af' : 'white'} 
+                color={(badgeCount === 0 || !isOnline) ? '#9ca3af' : 'white'} 
               />
-              {pendingCount > 0 && (
-                <Text style={styles.syncBadge}>{pendingCount}</Text>
+              {badgeCount > 0 && (
+                <Text style={styles.syncBadge}>{badgeCount}</Text>
               )}
             </TouchableOpacity>
           )}
@@ -585,8 +748,10 @@ export default function App() {
         <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
     </View>
-  );
+  </>
+);
 }
+
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
@@ -654,6 +819,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     marginBottom: 24 
   },
+  eventPhoto: {
+  width: 60,
+  height: 60,
+  borderRadius: 8,
+  marginTop: 8,
+  borderWidth: 2,
+  borderColor: '#e2e8f0',
+ },
   roleBtn: {
     flex: 1, 
     flexDirection: 'row', 
@@ -1172,11 +1345,38 @@ const styles = StyleSheet.create({
     elevation: 12,
     zIndex: 1000,
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.9)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+modalContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
+},
+modalClose: {
+  position: 'absolute',
+  top: 60,
+  right: 20,
+  zIndex: 1000,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  borderRadius: 20,
+  padding: 8,
+},
+modalImage: {
+  flex: 1,
+  width: '100%',
+  height: '100%',
+  resizeMode: 'contain',
+},
   logoutText: { 
     color: 'white', 
     fontSize: 16, 
     fontWeight: '800', 
     marginLeft: 8,
-    letterSpacing: 0.5 
-  },
-});
+    letterSpacing: 0.5
+  }
+});  // ✅ THIS IS THE FINAL LINE
