@@ -6,7 +6,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Database-3fcf8e)](https://sgbcaggovqcnnjxdydqu.supabase.co)
 
 
-**Single-file React Native Expo MVP (800+ lines App.js) for factory operators & supervisors. Offline-first AsyncStorage → Supabase sync.**
+**Single-file React Native Expo MVP for factory operators & supervisors. Offline-first AsyncStorage → Supabase sync.**
 
 **Production deployed -  Click on LIVE DEMO ---> SCAN QR NOW ON EXPO GO**
 
