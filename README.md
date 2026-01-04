@@ -1,6 +1,6 @@
 # 🏭 Industrial Downtime Alerts Management App
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-EAS%20Update-brightgreen)](https://expo.dev/preview/update?message=Industrial+Downtime+Tracker+MVP&updateRuntimeVersion=1.0.0&createdAt=2026-01-04T15:35:28.373Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=2c1ab04d-c366-4908-b5cf-c28926315557)
+[![Live Demo](https://github.com/user-attachments/assets/1e1fdf1c-129b-4d06-957c-2844eaefd8b3)
 [![Expo Go](https://img.shields.io/badge/Expo%20Go-Scan%20QR-blue)](https://expo.dev/@pratistha9903/industrial-downtime-tracker)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-181717)](https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-3fcf8e)](https://sgbcaggovqcnnjxdydqu.supabase.co)
@@ -8,7 +8,8 @@
 
 **Single-file App for  operators & supervisors. Offline-first AsyncStorage → Supabase sync.**
 
-**Production deployed -  Click on LIVE DEMO ---> SCAN QR NOW ON EXPO GO**
+**Production deployed -  Click on LIVE DEMO ---> TO SEE VIDEO
+Click on Expo Go --> SCAN QR NOW ON EXPO GO-->RUN TASK ON APP**
 
 **🎯 WHAT I BUILT (Exact Code Features)**
 
@@ -255,7 +256,8 @@ Phase 5: 🔌 IoT integration → live machine status
 📅 January 2026 
 🎯 FINAL LIVE LINKS https://expo.dev/preview/update?message=Industrial+Downtime+Tracker+MVP&updateRuntimeVersion=1.0.0&createdAt=2026-01-04T15%3A35%3A28.373Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=2c1ab04d-c366-4908-b5cf-c28926315557
 
-🚀 Click on LIVE DEMO ---> SCAN QR NOW ON EXPO GO
+🚀 Click on LIVE DEMO ---> TO SEE DEMO VIDEO
+Click on Expo Go-->SCAN QR NOW ON EXPO GO -->Use App
 ---
 🔥 TEST CREDENTIALS:
 
