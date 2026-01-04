@@ -240,7 +240,7 @@ Phase 5: 🔌 IoT integration → live machine status
 
 ✅ LIVE PRODUCTION MVP → Scan QR above
 
-✅ Single-file App.js → 800+ production lines
+✅ Single-file App.js → 1400+ production lines
 
 ✅ Offline-first architecture → Factory proven
 
