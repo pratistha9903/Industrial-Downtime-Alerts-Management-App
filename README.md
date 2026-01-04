@@ -14,7 +14,7 @@
 -------------
 **Demo Video**
 
-https://github.com/user-attachments/assets/1e1fdf1c-129b-4d06-957c-2844eaefd8b3
+https://github.com/user-attachments/assets/1c0e46ef-8cdb-4b38-8fa5-914c4d327e9a
 
 ------------
 **🎯 WHAT I BUILT (Exact Code Features)**
