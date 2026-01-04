@@ -58,19 +58,9 @@ useState manages your app's memory - it tracks pendingQueue, badgeCount, current
 
 ---
 🔄 **DATA FLOW (Step-by-Step Story)**
-text
-1. Operator taps "Cutter 1" BUTTON
-   ↓ (Presentation Layer)
-2. App shows reason picker SCREEN  
-   ↓ (Logic Layer)
-3. User picks "No Order" → event created
-   ↓ (Logic Layer)
-4. event saved to pendingQueue ARRAY
-   ↓ (Storage Layer)
-5. AsyncStorage saves to PHONE MEMORY
-   ↓ (Back to Presentation)
-6. Red badge shows "1"
-   
+
+<img width="396" height="282" alt="image" src="https://github.com/user-attachments/assets/4a00fc1b-d67e-433a-a280-11600f689c2b" />
+
 ---
 
 ## 🎥 90-Second Demo Video **(Google Drive)**
