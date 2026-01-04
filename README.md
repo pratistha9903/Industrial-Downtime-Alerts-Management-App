@@ -20,7 +20,19 @@ Daily Factory Reality:
 ✅ Supervisor can't see issues
 
 ✅ $5000/hour lost → No data why ❌
+Expo, React Native, AsyncStorage, and useState are the main tools you used in your factory downtime tracker app.
 
+📱 Tool 1: Expo (The Magic Box)
+Expo makes building React Native apps super easy because it handles all the hard setup work for you. You chose Expo so you could focus on coding your factory screens instead of fighting Android/iOS build errors. It lets you test on your phone instantly with just "expo start" - perfect for quick demos during interviews. Expo gives you a professional app without needing a Mac or complex build tools.
+
+🎨 Tool 2: React Native (Phone Screens)
+React Native lets you build native iOS/Android apps using JavaScript, which you already know well. You picked it because factory workers need smooth, fast apps that feel like real phone apps (not web pages). It gives you buttons, screens, and badges that work perfectly on any phone - exactly what supervisors expect to see on the shop floor.
+
+💾 Tool 3: AsyncStorage (Phone's Memory)
+AsyncStorage saves your downtime events directly to the phone's internal storage so data survives airplane mode, WiFi drops, and app crashes. You chose it because factories have terrible internet, and operators can't lose logged events. Unlike regular state (which disappears on restart), AsyncStorage keeps your pendingQueue safe until the supervisor syncs it.
+
+🧠 Tool 4: useState (App's Brain)
+useState manages your app's memory - it tracks pendingQueue, badgeCount, currentRole, and screen states. You used React hooks because they're simple and powerful for handling factory flows like "operator logs → red badge appears → supervisor syncs → green check". No complex Redux needed for your MVP.
 🚀 My Solution:
 
 1. **Offline logging** → AsyncStorage saves ALWAYS
