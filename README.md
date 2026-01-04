@@ -8,7 +8,7 @@
 
 **Single-file React Native Expo MVP (800+ lines App.js) for factory operators & supervisors. Offline-first AsyncStorage → Supabase sync.**
 
-**Production deployed - click on Live Demo and scan QR above!**
+**Production deployed -  Click on LIVE DEMO ---> SCAN QR NOW ON EXPO GO**
 
 **🎯 WHAT I BUILT (Exact Code Features)**
 
