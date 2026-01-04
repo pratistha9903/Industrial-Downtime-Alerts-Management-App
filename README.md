@@ -46,24 +46,15 @@ useState manages your app's memory - it tracks pendingQueue, badgeCount, current
 ---
 **🏗️SIMPLE ARCHITECTURE EXPLANATION ** 
 🎯 3 LAYERS OF APP
-text
-┌─────────────────────┐  ← Layer 1: Presentation (What User Sees)
-│   SCREENS + BUTTONS │
+┌─────────────────────┐  ← Layer 1: Screens
 │ Login | Dashboard   │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐  ← Layer 2: Logic (App Brain)
-│ useState + Functions│
+├─────────────────────┤
+│ useState + Functions│  ← Layer 2: Logic
 │ pendingQueue logic  │
+├─────────────────────┤
+│   AsyncStorage      │  ← Layer 3: Storage
+│ Phone Memory (SAFE) │
 └─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐  ← Layer 3: Storage (Data Home)
-│   AsyncStorage      │
-│ Phone Memory        │
-└─────────────────────┘
-
 ---
 🔄 DATA FLOW (Step-by-Step Story)
 text
