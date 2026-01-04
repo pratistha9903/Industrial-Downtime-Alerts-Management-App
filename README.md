@@ -6,24 +6,33 @@
 
 **Production-grade offline-first field application** for machine operators and supervisors. **✅ 100% MVP requirements fulfilled**
 🏭 BIGGEST BUSINESS PROBLEM: Factory Downtime Tracking Fails Offline
-🎯 The Real Factory Crisis (Your App Solves)
+
+🎯 The Real Factory Crisis 
+
 Problem: Factory machines stop (downtime) but workers can't log reasons because WiFi fails or airplane mode is on. Result = ZERO data → Managers blind → Losses continue.
 
 Daily Factory Reality:
-✅ Cutter breaks → No WiFi → Can't log
-✅ Operator forgets reason  
-✅ Supervisor can't see issues
-✅ $5000/hour lost → No data why ❌
-🚀 Your App = Business Hero
 
-My Solution:
+✅ Cutter breaks → No WiFi → Can't log
+
+✅ Operator forgets reason  
+
+✅ Supervisor can't see issues
+
+✅ $5000/hour lost → No data why ❌
+
+🚀 My Solution:
+
 1. **Offline logging** → AsyncStorage saves ALWAYS
+
 2. **Red badge** → "3 issues waiting" 
+
 3. **Supervisor sync** → Instant dashboard
+
 4. **90-second demo** → Managers understand instantly
 
 ---
-🏗️ SIMPLE ARCHITECTURE EXPLANATION 
+**🏗️SIMPLE ARCHITECTURE EXPLANATION ** 
 🎯 3 LAYERS OF APP
 text
 ┌─────────────────────┐  ← Layer 1: Presentation (What User Sees)
