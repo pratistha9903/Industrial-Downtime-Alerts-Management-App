@@ -12,7 +12,7 @@
 
 **🎯 WHAT I BUILT (Exact Code Features)**
 
-✅ SINGLE App.js (800+ lines) - Operator + Supervisor modes
+✅ SINGLE App.js- Operator + Supervisor modes
 
 ✅ Mock login: "john@factory.com" → role toggle
 
