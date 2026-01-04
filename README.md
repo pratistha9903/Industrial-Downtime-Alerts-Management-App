@@ -11,19 +11,19 @@
 ### Production deployed -  Click on LIVE DEMO --->SCAN QR NOW ON EXPO GO-->RUN TASK ON APP**
 
 
--------------
-**Demo Video**
+---
+## Demo Video
 
-**App Demo**
+### App Demo
 
 https://github.com/user-attachments/assets/1c0e46ef-8cdb-4b38-8fa5-914c4d327e9a
 
-**Website Demo**
+### Website Demo
 
 https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 
-------------
-**🎯 WHAT I BUILT (Exact Code Features)**
+---
+## 🎯 WHAT I BUILT (Exact Code Features)**
 
 ✅ Mock login: Operator + Supervisor modes→ role toggle
 
@@ -45,9 +45,9 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 
 ✅ Red pending badge + sync spinner
 
-----
+---
 
-**🛠️ TECH STACK - What I Used & Why**
+## 🛠️ TECH STACK - What I Used & Why
 | Tool                 | What I Used It For                   | Used         |
 | -------------------- | ------------------------------------ | ------------ |
 | React Native + Expo  | Cross-platform UI (iOS+Android)      | Expo.dev     |
@@ -62,7 +62,7 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 
 ​---
 
-**🏗️ EASIER 3-LAYER ARCHITECTURE**
+## 🏗️ EASIER 3-LAYER ARCHITECTURE
 
 <img width="222" height="485" alt="image" src="https://github.com/user-attachments/assets/52cb897f-f35e-4ec0-8e46-0c847f38d218" />
 
@@ -70,7 +70,7 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 ✈️ Airplane Mode → Data SAFE → Supervisor Syncs Later ✅
 
 ---
-**🏭 EXACT WORKFLOW (Production Flow)**
+## 🏭 EXACT WORKFLOW (Production Flow)
 
 1. 👤 john@factory.com → Operator role
 
@@ -87,7 +87,7 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 7. ✅ Sync button → Supabase → Badge clears
 📱 [LIVE DEMO → Scan QR Above]
 ---
-**📱 MACHINES & FEATURES (Hardcoded Data)**
+## 📱 MACHINES & FEATURES (Hardcoded Data)
 
 Machine	Type	Status	Maintenance Tasks
 
@@ -108,7 +108,7 @@ Nested Reason Tree:
 🔄 Changeover → Tooling(IDLE), Product(IDLE)
 
 ---
-**🚀 90-SECOND SETUP (Copy-Paste Commands)**
+## 🚀 90-SECOND SETUP (Copy-Paste Commands)
 
 # 1. Clone & Install (90 seconds)
 
@@ -118,11 +118,11 @@ cd Industrial-Downtime-Alerts-Management-App
 
 npm install
 
-# 2. Run → QR Code appears
+## 2. Run → QR Code appears
 
 npx expo start --clear
 
-# 📱 SCAN QR with Expo Go → LIVE instantly!
+## 📱 SCAN QR with Expo Go → LIVE instantly!
 
 Exact Dependencies (Your Commands):
 
@@ -134,7 +134,7 @@ npm i @expo/vector-icons expo-image-picker
 npx expo install expo-image-picker
 ---
 
-**☁️ SUPABASE PRODUCTION SCHEMA**
+## ☁️ SUPABASE PRODUCTION SCHEMA
 
 
 <img width="624" height="329" alt="image" src="https://github.com/user-attachments/assets/161503e0-ec6f-47a4-9ae8-76ad835d911a" />
@@ -150,13 +150,13 @@ await AsyncStorage.setItem('role', 'operator');
 await AsyncStorage.setItem('pendingQueue', JSON.stringify(events));
 
 ---
-**📊 COMPLETE FEATURE MATRIX**
+## 📊 COMPLETE FEATURE MATRIX
 <img width="936" height="456" alt="image" src="https://github.com/user-attachments/assets/e1d07e5e-a859-4711-8f8f-1b2f23d08557" />
 
 
 ---
 
-**💰 FACTORY BUSINESS VALUE**
+## 💰 FACTORY BUSINESS VALUE
 
 🎯 Replaces paper logs → 3-tap digital entry
 
@@ -170,23 +170,23 @@ await AsyncStorage.setItem('pendingQueue', JSON.stringify(events));
 
 📈 12% downtime reduction = ₹2.5 Lakh/month savings
 
-**🔧 PRODUCTION DEPLOYMENT (EAS Commands)**
+## 🔧 PRODUCTION DEPLOYMENT (EAS Commands)
 ---
 
-**APK Build (Production)**
+## APK Build (Production)
 eas login
 eas build --platform android --profile preview
 
-**Live Updates (No reinstall needed)**
+## Live Updates (No reinstall needed)
 eas update --branch production
 
-**Development (QR Code)**
+## Development (QR Code)
 
 npx expo start --clear --tunnel
 
 ----
 
-**🎨 CUSTOM BUILT COMPONENTS**
+## 🎨 CUSTOM BUILT COMPONENTS
 
 ✅ Machine Cards (status-based gradients)
 
@@ -204,7 +204,7 @@ npx expo start --clear --tunnel
 
 ---
 
-**🐛 PRODUCTION FIXES (All Resolved)**
+## 🐛 PRODUCTION FIXES (All Resolved)
 
 ✅ Photo base64 + uri both display correctly
 
@@ -221,7 +221,7 @@ npx expo start --clear --tunnel
 ✅ Error handling for failed syncs
 ---
 
-**🚀 90-SECOND LIVE DEMO SCRIPT**
+ ## 🚀 90-SECOND LIVE DEMO SCRIPT
 
 [0:00] 👤 john@factory.com → Operator role
 
@@ -238,7 +238,7 @@ npx expo start --clear --tunnel
 [1:15] ✅ Tap Sync → Supabase saves → Badge clears
 
 ---
-**🌟 NEXT PHASE ROADMAP**
+## 🌟 NEXT PHASE ROADMAP
 
 Phase 2: 🔄 Auto-sync + push notifications
 
@@ -248,8 +248,8 @@ Phase 4: 👥 Real Supabase Auth + user management
 
 Phase 5: 🔌 IoT integration → live machine status
 
-----
-**👨‍💻 Cuurent status**
+---
+## 👨‍💻 Cuurent status
 
 ✅ LIVE PRODUCTION MVP → Scan QR above
 
@@ -265,8 +265,8 @@ Phase 5: 🔌 IoT integration → live machine status
 
 ✅ Expo EAS Build + OTA Updates
 
-----
-🎯 FINAL LIVE LINKS
+---
+## 🎯 FINAL LIVE LINKS
 
 [![Expo Link](https://expo.dev/preview?url=https%3A%2F%2Fexpo.dev%2Fpreview%2Fupdate%3Fmessage%3DIndustrial%2BDowntime%2BTracker%2BMVP%26updateRuntimeVersion%3D1.0.0%26createdAt%3D2026-01-04T15%253A35%253A28.373Z%26slug%3Dexp%26projectId%3Dce79cd3d-031f-4651-9dca-e3559e6dfd3c%26group%3D2c1ab04d-c366-4908-b5cf-c28926315557)](https://expo.dev/preview/update?message=Industrial+Downtime+Tracker+MVP&updateRuntimeVersion=1.0.0&createdAt=2026-01-04T15%3A35%3A28.373Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=2c1ab04d-c366-4908-b5cf-c28926315557)
 
@@ -282,7 +282,7 @@ Supervisor: shyam@factory.com
 
 ✅ Production-ready single-file MVP
 ---
-**⚡ ONE COMMAND START:**
+## ⚡ ONE COMMAND START:
 
 npx expo start --clear
 
@@ -290,4 +290,4 @@ npx expo start --clear
 
 🏭 BUILT FOR FACTORY FLOOR → WiFi fails OK
 
-💾 SINGLE App.js → 800+ LINES → FULLY FUNCTIONAL
+💾 SINGLE App.js → 1400 + LINES → FULLY FUNCTIONAL
