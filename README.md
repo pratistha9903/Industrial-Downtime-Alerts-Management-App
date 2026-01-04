@@ -86,8 +86,7 @@ M-102	Roller	IDLE🟡	⛓️Belt tension
 
 M-103	Packer	OFF🔴	📡Sensor check
 
-Nested Reason Tree (Your Code):
-
+Nested Reason Tree:
 
 ✅ Working Properly
 
@@ -129,7 +128,7 @@ npx expo install expo-image-picker
 
 <img width="624" height="329" alt="image" src="https://github.com/user-attachments/assets/161503e0-ec6f-47a4-9ae8-76ad835d911a" />
 
-Your Storage Keys:
+Storage Keys:
 
 javascript
 
@@ -171,7 +170,10 @@ eas build --platform android --profile preview
 eas update --branch production
 
 # Development (QR Code)
+
 npx expo start --clear --tunnel
+
+----
 
 **🎨 CUSTOM BUILT COMPONENTS**
 
@@ -188,6 +190,8 @@ npx expo start --clear --tunnel
 ✅ Pending Badge Counter + Sync Spinner
 
 ✅ Dark Industrial Theme (400+ style rules)
+
+---
 
 **🐛 PRODUCTION FIXES (All Resolved)**
 
@@ -253,19 +257,18 @@ Phase 5: 🔌 IoT integration → live machine status
 📅 January 2026 
 🎯 FINAL LIVE LINKS https://expo.dev/preview/update?message=Industrial+Downtime+Tracker+MVP&updateRuntimeVersion=1.0.0&createdAt=2026-01-04T15%3A35%3A28.373Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=2c1ab04d-c366-4908-b5cf-c28926315557
 
-🚀 LIVE DEMO - SCAN QR NOW
-
-text
+🚀 Click on LIVE DEMO ---> SCAN QR NOW ON EXPO GO
+---
 🔥 TEST CREDENTIALS:
 
 Operator: john@factory.com
-S
-upervisor: shyam@factory.com
+
+Supervisor: shyam@factory.com
 
 ✈️ Test offline: Airplane ON → Log → Kill → Restart → Sync
 
 ✅ Production-ready single-file MVP
-
+---
 **⚡ ONE COMMAND START:**
 
 npx expo start --clear
