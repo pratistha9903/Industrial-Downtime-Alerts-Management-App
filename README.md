@@ -37,7 +37,7 @@
 ----
 
 **🛠️ TECH STACK - What I Used & Why**
-| Tool                 | What I Used It For                   | Link         |
+| Tool                 | What I Used It For                   | Used         |
 | -------------------- | ------------------------------------ | ------------ |
 | React Native + Expo  | Cross-platform UI (iOS+Android)      | Expo.dev     |
 | useState (45+ hooks) | App brain - screen, queue, machines  | React Native |
