@@ -453,36 +453,68 @@ export default function App() {
     styles.eventCard, 
     item.status === 'acknowledged' && styles.eventAcknowledged
   ]}>
-    <Ionicons name={item.icon} size={24} color="#10b981" />
+    <Ionicons 
+      name={item.icon || "help-circle-outline"} 
+      size={24} 
+      color="#10b981" 
+    />
+    
     <View style={styles.eventContent}>
       <Text style={styles.eventType}>{item.type}</Text>
       <Text style={styles.eventDesc}>
         {item.full_reason_path || item.reason || item.task || 'No reason'}
       </Text>
       
+      {/* ✅ FIXED PHOTO HANDLING - Works for ALL images */}
       {(item.photo_uri || item.photo_base64) && (
         <TouchableOpacity 
           style={{ alignItems: 'center', marginTop: 8 }}
           onPress={() => {
-            Alert.alert(
-              'Photo Preview',
-              'Tap to view fullscreen!',
-              [
-                { text: 'View Fullscreen', onPress: () => setModalPhoto({ uri: item.photo_uri || item.photo_base64 }) },
-                { text: 'Cancel', style: 'cancel' }
-              ]
-            );
+            // ✅ Handle both photo_uri AND photo_base64
+            const photoData = item.photo_uri 
+              ? { uri: item.photo_uri }
+              : item.photo_base64 
+                ? { uri: `data:image/jpeg;base64,${item.photo_base64}` }
+                : null;
+            
+            if (photoData) {
+              Alert.alert(
+                'Photo Preview',
+                'Tap to view fullscreen!',
+                [
+                  { 
+                    text: 'View Fullscreen', 
+                    onPress: () => setModalPhoto(photoData) 
+                  },
+                  { text: 'Cancel', style: 'cancel' }
+                ]
+              );
+            }
           }}
         >
           <Image 
-            source={{ uri: item.photo_uri || item.photo_base64 }} 
+            source={
+              item.photo_uri 
+                ? { uri: item.photo_uri }
+                : { uri: `data:image/jpeg;base64,${item.photo_base64}` }
+            } 
             style={[
               styles.eventPhoto, 
-              { backgroundColor: '#f1f5f9', borderWidth: 2, borderColor: '#10b981', borderRadius: 12 }
+              { 
+                backgroundColor: '#f1f5f9', 
+                borderWidth: 2, 
+                borderColor: '#10b981', 
+                borderRadius: 12 
+              }
             ]}
             resizeMode="cover"
           />
-          <Text style={{fontSize: 11, color: '#10b981', marginTop: 4, fontWeight: '600'}}>
+          <Text style={{
+            fontSize: 11, 
+            color: '#10b981', 
+            marginTop: 4, 
+            fontWeight: '600'
+          }}>
             📸 Tap to enlarge
           </Text>
         </TouchableOpacity>
@@ -494,8 +526,12 @@ export default function App() {
       </Text>
     </View>
     
+    {/* ✅ Acknowledge button */}
     {item.status === 'created' && (
-      <TouchableOpacity style={styles.ackBtn} onPress={() => acknowledgeEvent(item)}>
+      <TouchableOpacity 
+        style={styles.ackBtn} 
+        onPress={() => acknowledgeEvent(item)}
+      >
         <Ionicons name="checkmark-outline" size={16} color="white" />
       </TouchableOpacity>
     )}
