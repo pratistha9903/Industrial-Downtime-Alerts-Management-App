@@ -50,6 +50,8 @@ useState manages your app's memory - it tracks pendingQueue, badgeCount, current
 
 ---
 🏗️ **SIMPLE ARCHITECTURE EXPLANATION** 
+
+
 <img width="642" height="432" alt="image" src="https://github.com/user-attachments/assets/62b0732d-3355-4dbe-8d3c-47f2bdddf127" />
 
 
