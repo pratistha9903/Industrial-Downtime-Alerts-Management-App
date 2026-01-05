@@ -310,7 +310,7 @@ Phase 5: 🔌 IoT integration → live machine status
 ---
 ## 🎯 FINAL LIVE LINKS
 
-[![Expo Link](https://expo.dev/preview?url=https%3A%2F%2Fexpo.dev%2Fpreview%2Fupdate%3Fmessage%3DIndustrial%2BDowntime%2BTracker%2BMVP%26updateRuntimeVersion%3D1.0.0%26createdAt%3D2026-01-04T15%253A35%253A28.373Z%26slug%3Dexp%26projectId%3Dce79cd3d-031f-4651-9dca-e3559e6dfd3c%26group%3D2c1ab04d-c366-4908-b5cf-c28926315557)](https://expo.dev/preview/update?message=Industrial+Downtime+Tracker+MVP&updateRuntimeVersion=1.0.0&createdAt=2026-01-04T15%3A35%3A28.373Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=2c1ab04d-c366-4908-b5cf-c28926315557)
+[![Expo Link](https://img.shields.io/badge/Live%20Demo-EAS%20Update-brightgreen)](https://expo.dev/preview/update?message=Industrial+Downtime+Tracker&updateRuntimeVersion=1.0.0&createdAt=2026-01-05T06%3A56%3A42.741Z&slug=exp&projectId=ce79cd3d-031f-4651-9dca-e3559e6dfd3c&group=793ebdc3-6511-4fd4-a342-58a1abe31616)
 
 🚀 Click on LIVE DEMO --->SCAN QR NOW ON EXPO GO -->Use App
 ---
