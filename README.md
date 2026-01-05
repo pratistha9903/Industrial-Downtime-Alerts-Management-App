@@ -49,11 +49,15 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
     <img src="https://github.com/user-attachments/assets/52ec3ed2-1d1c-4395-a74d-24c629dc819e" width="250"/>
   </a>
   <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
-    <img src="https://github.com/user-attachments/assets/18c40b3b-3cec-41cf-b76d-9f090c1a3313" width="250"/>
+    <img src="https://github.com/user-attachments/assets/ed5d67ce-cf52-4d66-ae4f-139a3a0fc567" width="250"/>
   </a>
+
 </p>
 
 <p align="center">
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/18c40b3b-3cec-41cf-b76d-9f090c1a3313" width="250"/>
+  </a>
   <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
     <img src="https://github.com/user-attachments/assets/bfcface8-de35-44ee-bcf1-e37173c577d5" width="250"/>
   </a>
