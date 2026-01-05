@@ -26,6 +26,19 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 ### QR Code Screenshort
 <img width="1837" height="824" alt="image" src="https://github.com/user-attachments/assets/1a524402-8c1e-418f-a0ea-370a1d4d0350" />
 
+## 📸 App Screenshots
+### Login Page
+![Login Screen](![WhatsApp Image 2026-01-05 at 3 57 20 PM](https://github.com/user-attachments/assets/c3af0be1-ce02-4784-acfa-826f39c17ac4)
+
+
+### Home Page
+![Home](screenshots/home.png)
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Reports
+![Reports](screenshots/report.png)
 
 ---
 ## 🎯 WHAT I BUILT (Exact Code Features)
