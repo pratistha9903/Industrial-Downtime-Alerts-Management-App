@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 
 ## 📸 App Screenshots
 ### Login Page
-![Login Screen]![WhatsApp Image 2026-01-05 at 3 57 20 PM](https://github.com/user-attachments/assets/ddf41d29-aa13-4502-a476-f4d8f6244737)
+![Login Screen](![WhatsApp Image 2026-01-05 at 3 57 20 PM](https://github.com/user-attachments/assets/ddf41d29-aa13-4502-a476-f4d8f6244737)
 
 
 
