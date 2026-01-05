@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Industrial Downtime Tracker",
-    "slug": "Industrial Downtime Tracker",
+    "slug": "shopfloor-downtime-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
