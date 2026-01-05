@@ -602,7 +602,7 @@ export default function App() {
                   />
                   
                   <TouchableOpacity style={styles.submitBtn} onPress={() => handleDowntimeSubmit(currentReasons[0])}>
-                    <Text style={styles.submitBtnText}>SUBMIT DOWNTIME{currentReasons[0]?.label}</Text>
+                    <Text style={styles.submitBtnText}>SUBMIT DOWNTIME</Text>
                   </TouchableOpacity>
                 </>
               )}
