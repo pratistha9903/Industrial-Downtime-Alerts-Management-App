@@ -6,9 +6,10 @@
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-181717)](https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App)
 [![Supabase](https://img.shields.io/badge/20Supabase-Database-3fcf8e)](https://sgbcaggovqcnnjxdydqu.supabase.co)
 
-## Single-file App for  operators & supervisors. Offline-first AsyncStorage → Supabase sync.
+### A production-ready mobile app for real-time factory downtime tracking.
+Built with an offline-first approach, the app captures machine status, structured downtime reasons, and on-floor evidence, and syncs data seamlessly to a central backend for real-time visibility and analysis. Offline-first AsyncStorage → Supabase sync.
 
-### Production deployed -  Click on LIVE DEMO --->SCAN QR NOW ON EXPO GO-->RUN TASK ON APP
+###### Production deployed -  Click on LIVE DEMO --->SCAN QR NOW ON EXPO GO-->RUN TASK ON APP
 
 
 ---
