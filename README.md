@@ -261,6 +261,7 @@ npx expo start --clear --tunnel
 ✅ Badge counter updates real-time
 
 ✅ Error handling for failed syncs
+
 ---
 
  ## 🚀 90-SECOND LIVE DEMO SCRIPT
