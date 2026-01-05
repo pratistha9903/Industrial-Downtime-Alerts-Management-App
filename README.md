@@ -17,7 +17,7 @@ Built with an offline-first approach, the app captures machine status, structure
 
 ### App Demo
 
-https://github.com/user-attachments/assets/1c0e46ef-8cdb-4b38-8fa5-914c4d327e9a
+https://github.com/user-attachments/assets/2d3f99e5-5995-433b-bdd0-9e89da9a9257
 
 ### Website Demo
 
