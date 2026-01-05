@@ -27,19 +27,38 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 <img width="1837" height="824" alt="image" src="https://github.com/user-attachments/assets/1a524402-8c1e-418f-a0ea-370a1d4d0350" />
 
 ## 📸 App Screenshots
-### Login Page
-![Login Screen](![WhatsApp Image 2026-01-05 at 3 57 20 PM](https://github.com/user-attachments/assets/ddf41d29-aa13-4502-a476-f4d8f6244737)
+## 📸 Application Screenshots
 
+<p align="center">
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/5fe3dac2-1376-4c69-a640-b133a3ef1e7f" width="250"/>
+  </a>
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/96dae297-539b-412e-8f85-ffa066418319" width="250"/>
+  </a>
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/6d731e87-c87c-46b4-bb4a-9af038cacc9c" width="250"/>
+  </a>
+</p>
 
+<p align="center">
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/e81d885e-f2b4-4ac4-abfe-31badebcb8c9" width="250"/>
+  </a>
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/52ec3ed2-1d1c-4395-a74d-24c629dc819e" width="250"/>
+  </a>
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/18c40b3b-3cec-41cf-b76d-9f090c1a3313" width="250"/>
+  </a>
+</p>
 
-### Home Page
-![Home](screenshots/home.png)
+<p align="center">
+  <a href="https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App/issues/17">
+    <img src="https://github.com/user-attachments/assets/bfcface8-de35-44ee-bcf1-e37173c577d5" width="250"/>
+  </a>
+</p>
 
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Reports
-![Reports](screenshots/report.png)
 
 ---
 ## 🎯 WHAT I BUILT (Exact Code Features)
