@@ -152,7 +152,7 @@ Nested Reason Tree:
 ---
 ## 🚀 90-SECOND SETUP (Copy-Paste Commands)
 
-# 1. Clone & Install (90 seconds)
+### 1. Clone & Install (90 seconds)
 
 git clone https://github.com/pratistha9903/Industrial-Downtime-Alerts-Management-App.git
 
@@ -160,7 +160,7 @@ cd Industrial-Downtime-Alerts-Management-App
 
 npm install
 
-## 2. Run → QR Code appears
+### 2. Run → QR Code appears
 
 npx expo start --clear
 
