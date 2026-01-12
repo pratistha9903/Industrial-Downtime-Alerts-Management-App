@@ -333,3 +333,8 @@ npx expo start --clear
 🏭 BUILT FOR FACTORY FLOOR → WiFi fails OK
 
 💾 SINGLE App.js → 1400 + LINES → FULLY FUNCTIONAL
+
+
+## License
+This project is shared for **portfolio and learning purposes only**.
+Reproduction, redistribution, or commercial use is **not permitted** without permission.
