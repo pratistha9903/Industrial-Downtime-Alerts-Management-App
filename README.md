@@ -108,7 +108,7 @@ https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 
 <img width="222" height="485" alt="image" src="https://github.com/user-attachments/assets/52cb897f-f35e-4ec0-8e46-0c847f38d218" />
 
-<img width="222" height="485" alt="image" src="https://github.com/user-attachments/assets/12b22d16-6324-4fda-a4d8-32226de9c462" />
+<img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/12b22d16-6324-4fda-a4d8-32226de9c462" />
 
 ✈️ Airplane Mode → Data SAFE → Supervisor Syncs Later ✅
 
