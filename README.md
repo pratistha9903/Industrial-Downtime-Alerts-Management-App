@@ -27,7 +27,9 @@ This video showcases the complete website interface, navigation, features, and u
 
 https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
 
-Note: These videos were recorded when the application was fully operational with active backend and database services.
+Note: The previous deployment may currently be unavailable due to hosting service limitations. Please refer to the demo video below for a complete demonstration of the application's functionality.
+
+---
 
 ### QR Code Screenshort
 <img width="1837" height="824" alt="image" src="https://github.com/user-attachments/assets/1a524402-8c1e-418f-a0ea-370a1d4d0350" />
