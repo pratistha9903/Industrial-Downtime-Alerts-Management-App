@@ -13,15 +13,21 @@ Built with an offline-first approach, the app captures machine status, structure
 
 
 ---
-## Demo Video
+## Demo Videos
 
 ### App Demo
+
+This video demonstrates the core functionality of the Industrial Downtime Tracker application, including downtime logging, tracking, reporting, and user workflows.
 
 https://github.com/user-attachments/assets/2d3f99e5-5995-433b-bdd0-9e89da9a9257
 
 ### Website Demo
 
+This video showcases the complete website interface, navigation, features, and user experience.
+
 https://github.com/user-attachments/assets/41d7c27b-ea0c-4081-9a7a-314dd8b990c5
+
+Note: These videos were recorded when the application was fully operational with active backend and database services.
 
 ### QR Code Screenshort
 <img width="1837" height="824" alt="image" src="https://github.com/user-attachments/assets/1a524402-8c1e-418f-a0ea-370a1d4d0350" />
